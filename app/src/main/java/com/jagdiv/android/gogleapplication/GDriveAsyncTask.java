@@ -5,6 +5,7 @@ package com.jagdiv.android.gogleapplication;
  */
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.util.Pair;
@@ -22,10 +23,8 @@ import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.util.Arrays;
@@ -60,21 +59,8 @@ public class GDriveAsyncTask extends AsyncTask<Pair<Context, String>, Void, Stri
      */
     private static final List<String> SCOPES =
             Arrays.asList(DriveScopes.DRIVE_METADATA_READONLY);
-    PrivateKey serviceAccountPrivateKey;
-  //  KeyStore keystore=null;
-    static {
-        try {
-            //KeyStore keystore = KeyStore.getInstance("PKCS12");
-            KeyStore keystore = KeyStore.getInstance("PKCS12");
-            System.out.println("after keystore ");
-        } catch (Exception e) {
 
-            System.out.println("in keystore error"+e.getMessage());
-//            return null;
-        }
-      System.out.println("checkedout ks");
-  }
-   /* static {
+   static {
         try {
            // HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
             HTTP_TRANSPORT = AndroidHttp.newCompatibleTransport();
@@ -83,7 +69,7 @@ public class GDriveAsyncTask extends AsyncTask<Pair<Context, String>, Void, Stri
             t.printStackTrace();
             System.exit(1);
         }
-    }*/
+    }
     @Override
     protected String doInBackground(Pair<Context, String>... params) {
         System.out.println("do in bkgnd start");
@@ -91,32 +77,10 @@ public class GDriveAsyncTask extends AsyncTask<Pair<Context, String>, Void, Stri
         String name = params[0].second;
         // Build a new authorized API client service.
         Drive service = getDriveService(context);
-        printFile( service);
+        String filenameid=printFile( service);
 
-/**
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpPost httpPost = new HttpPost("http://perfect-entry-134823.appspot.com/"); // 10.0.2.2 is localhost's IP address in Android emulator
-//https://perfect-entry-134823.appspot.com/
-        //  HttpPost httpPost = new HttpPost("http://1-dot-logical-flame-807.appspot.com/hello");
-        try {
-            // Add name data to request
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(1);
-            nameValuePairs.add(new BasicNameValuePair("name", name));
-            httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
-            // Execute HTTP Post Request
-            HttpResponse response = httpClient.execute(httpPost);
-            if (response.getStatusLine().getStatusCode() == 200) {
-                return EntityUtils.toString(response.getEntity());
-            }
-            return "Error: " + response.getStatusLine().getStatusCode() + " " + response.getStatusLine().getReasonPhrase();
-
-        } catch (ClientProtocolException e) {
-            return e.getMessage();
-        } catch (IOException e) {
-            return e.getMessage();
-        }*/
-        return "rups";
+        return name +" "+ filenameid;
     }
 
     @Override
@@ -144,14 +108,14 @@ public class GDriveAsyncTask extends AsyncTask<Pair<Context, String>, Void, Stri
         Credential credential = new AuthorizationCodeInstalledApp(
                 flow, new LocalServerReceiver()).authorize("user");
      */// setServiceAccountId(IRingeeConstants.SERVICE_ACCOUNT_EMAIL)
-       // AssetManager am=getAssets();
-      // InputStream inputStream= ctx.getAssets().open("Google cloud app-7e0287a68575.p12");
+
+
        // URL resource = ctx.getAssets().open("Google cloud app-7e0287a68575.p12");
         // URL resource = getServletContext().getResource("/WEB-INF/rups.txt");
-        //java.io.File file=null;
+       //java.io.File file=null;
 
       //  try {
-         //  file = createFileFromInputStream(inputStream);
+         //file = createFileFromInputStream(inputStream);
          //   file =  new java.io.File(resource.toURI());
         /*    try (BufferedReader br = new BufferedReader(new FileReader(file)))
             {
@@ -169,10 +133,18 @@ public class GDriveAsyncTask extends AsyncTask<Pair<Context, String>, Void, Stri
         //}
        // ClassLoader classLoader = getClass().getClassLoader();
          //file = new java.io.File(classLoader.getResource("Google cloud app-7e0287a68575.p12").getFile());
-try{
+        PrivateKey serviceAccountPrivateKey;
+        try{
+        //res/raw folder contains .p12 file
         final Resources resources =  context.getResources();
-        InputStream inputStream = resources.openRawResource(R.raw.googlecloudapp281fc1542171);
-    System.out.println("before ks in authorise");
+       // InputStream inputStream = resources.openRawResource(R.raw.googlecloudapp281fc1542171);
+
+         //assets folder contains .p12 file
+            AssetManager am=ctx.getAssets();
+            InputStream inputStream= am.open("Google cloud app-7e0287a68575.p12");
+            System.out.println("before ks in authorise");
+
+
     KeyStore keystore = KeyStore.getInstance("PKCS12");
     System.out.println("after PKCS12 in authorise");
     keystore.load(inputStream, "notasecret".toCharArray());
@@ -181,15 +153,7 @@ try{
         System.out.println("in PKCS12 error"+e.getMessage());
         return null;
     }
-        try {
 
-            // HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-            HTTP_TRANSPORT = AndroidHttp.newCompatibleTransport();
-            //          DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
-        } catch (Throwable t) {
-            t.printStackTrace();
-            System.exit(1);
-        }
         GoogleCredential credential = null;
       //  try {
             credential = new GoogleCredential
@@ -221,46 +185,9 @@ try{
                   .setApplicationName(APPLICATION_NAME)
                 .build();
     }
-void keystore(){
-   /* String keystoreFilename = "my.keystore";
 
-    char[] password = "password".toCharArray();
-    String alias = "alias";
 
-    FileInputStream fIn = new FileInputStream(keystoreFilename);
-    KeyStore keystore = KeyStore.getInstance("JKS");
-
-    keystore.load(fIn, password);
-
-    Certificate cert = keystore.getCertificate(alias);
-
-    System.out.println(cert);
-*/
-}
-
-    private java.io.File createFileFromInputStream(InputStream inputStream) {
-
-        try{
-            java.io.File f = new java.io.File("Googlecloudapp-7e0287a68575.p12");
-            OutputStream outputStream = new FileOutputStream(f);
-            byte buffer[] = new byte[1024];
-            int length = 0;
-
-            while((length=inputStream.read(buffer)) > 0) {
-                outputStream.write(buffer,0,length);
-            }
-
-            outputStream.close();
-            inputStream.close();
-
-            return f;
-        }catch (IOException e) {
-            //Logging exception
-        }
-
-        return null;
-    }
-    void printFile(Drive service){
+    String printFile(Drive service){
         // Print the names and IDs for up to 10 files.
         FileList result = null;
         try {
@@ -272,14 +199,20 @@ void keystore(){
         } catch (IOException e) {
             e.printStackTrace();
         }
+        String filenameid=null;
         List<File> files = result.getFiles();
         if (files == null || files.size() == 0) {
             System.out.println("No files found.");
         } else {
             System.out.println("Files:");
+            StringBuilder sb=new StringBuilder();
             for (File file : files) {
+                sb.append("name" + file.getName() + " id " + file.getId());
                 System.out.printf("%s (%s)\n", file.getName(), file.getId());
             }
+            filenameid=sb.toString();
+
         }
+        return filenameid ;
     }
 }
