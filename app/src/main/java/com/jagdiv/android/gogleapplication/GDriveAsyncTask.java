@@ -143,21 +143,25 @@ public class GDriveAsyncTask extends AsyncTask<Pair<Context, String>, Void, Stri
             AssetManager am=ctx.getAssets();
             InputStream inputStream= am.open("Google cloud app-7e0287a68575.p12");
             System.out.println("before ks in authorise");
-
-
     KeyStore keystore = KeyStore.getInstance("PKCS12");
     System.out.println("after PKCS12 in authorise");
     keystore.load(inputStream, "notasecret".toCharArray());
         serviceAccountPrivateKey = (PrivateKey) keystore.getKey("privatekey", "notasecret".toCharArray());
     } catch (Exception e) {
-        System.out.println("in PKCS12 error"+e.getMessage());
+        System.out.println("in PKCS12 error" + e.getMessage());
         return null;
     }
+//assets folder contains json
+        AssetManager am=ctx.getAssets();
+        InputStream inputStreamj= am.open("Google cloud app-6638493291f8.json");
 
         GoogleCredential credential = null;
       //  try {
-            credential = new GoogleCredential
-                    .Builder()
+            credential = GoogleCredential.fromStream(inputStreamj,HTTP_TRANSPORT,JSON_FACTORY)
+                    .createScoped(Collections.singleton(DriveScopes.DRIVE));
+
+        /*credential = new GoogleCredential
+                .Builder()
 
                     .setTransport(HTTP_TRANSPORT)
                     .setJsonFactory(JSON_FACTORY)
@@ -165,7 +169,7 @@ public class GDriveAsyncTask extends AsyncTask<Pair<Context, String>, Void, Stri
                     .setServiceAccountScopes(Collections.singleton(DriveScopes.DRIVE))//DriveScopes.DRIVE_APPDATA
                     .setServiceAccountPrivateKey(serviceAccountPrivateKey)
                   //  .setServiceAccountPrivateKeyFromP12File(file)
-                    .build();
+                    .build();*/
        // } catch (GeneralSecurityException e) {
          //   e.printStackTrace();
 //        }
