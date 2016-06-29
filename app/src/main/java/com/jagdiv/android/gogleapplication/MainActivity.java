@@ -10,16 +10,26 @@ import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        new GDriveAsyncTask().execute(new Pair<Context, String>(this, "Manfred"));
+       // new GDriveAsyncTask().execute(new Pair<Context, String>(this, "Manfred"));
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        Button btn = (Button) findViewById(R.id.calendar);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                calledcal();
+                Snackbar.make(view, "get calendar click", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -29,7 +39,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+void calledcal(){
+    new CalendarAsyncTask().execute(new Pair<Context, String>(this, "calendar"));
+   // Intent intent=new Intent(this,CalendarActivity.class);
+    //startActivity(intent);
+}
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
