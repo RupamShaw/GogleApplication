@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+   <!-- <include
+        android:id="@+id/list_item_section_text"
+        layout="@android:layout/preference_category" />-->
+  <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/separator"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        style="?android:listSeparatorTextViewStyle"
+
+        />
+  <!--  <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/separatorUp"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        style="?android:listSeparatorTextViewStyle"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/startName"
+        android:textSize="14sp"
+        android:textStyle="bold"
+
+        />
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:id="@+id/separatorDown"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        style="?android:listSeparatorTextViewStyle"
+        />-->
+</LinearLayout>
