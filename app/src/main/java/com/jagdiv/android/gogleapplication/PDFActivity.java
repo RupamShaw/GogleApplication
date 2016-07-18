@@ -19,6 +19,11 @@ import com.google.api.services.drive.model.File;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class PDFActivity extends BaseActivity {
@@ -230,17 +235,73 @@ void groupofFIlesByDate(){
 
             if (result == null) {
                 mOutputText.setText("No results returned.");
-                System.out.println("************* result" + result);
+                System.out.println("No results returned..........");
+                Toast.makeText(context, "No files uploaded..", Toast.LENGTH_LONG).show();
             } else {
                 //callCalendar(items);
                 System.out.println("************* result" + result);
-            }
-            PDFAdapter nladapter=new PDFAdapter(context,result);
-            System.out.println("***************");
-            mResultsListView.setAdapter(nladapter);
-            Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show();
-        }
+               // ArrayList<File> listFileExt = new ArrayList<File>();
+                ArrayList<PDFEntity> listPDFEntity= (ArrayList<PDFEntity>) listSection(result);
 
+             PDFAdapter nladapter=new PDFAdapter(context,listPDFEntity);
+                System.out.println("***************");
+
+              mResultsListView.setAdapter(nladapter);
+                Toast.makeText(context, result.toString(), Toast.LENGTH_LONG).show();
+            }
+
+        }
+ List<PDFEntity> listSection(List<File> persons){
+   // ArrayList<com.google.api.services.drive.model.File> listFileExt = new ArrayList<com.google.api.services.drive.model.File>();
+
+    int sz=persons.size();
+   // boolean isSeparator = false;
+    sz=sz-1;
+    int position = 0;
+    List<PDFEntity> personsExt = new ArrayList<PDFEntity>();
+    while(sz>=0){
+       // isSeparator = false;
+        String name=persons.get(sz).getName();
+      //  String num=persons.get(sz).get;
+       // SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String dateStr=persons.get(sz).getModifiedTime()+"";
+        //String dateStr = "06/27/2007";
+        Date modifiedDate=null;
+        DateFormat formatter = new SimpleDateFormat("dd-MM-YYYY");
+        try {
+             modifiedDate = formatter.parse(dateStr);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        //  Date date5=dts.;
+        //char[] nameArray;
+
+        // If it is the first item then need a separator
+        if (position == 0) {
+            personsExt.add(new PDFEntity(name,true,modifiedDate));
+          }
+        else{
+            //DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            Date prevDt= null;
+            try {
+                prevDt = formatter.parse(persons.get(sz + 1).getModifiedTime()+"");
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        System.out.println(prevDt +"  ** "+ modifiedDate);
+            if(prevDt.compareTo(modifiedDate)>0){
+                personsExt.add(new PDFEntity(name,true,modifiedDate));
+            }
+
+        }//else
+        personsExt.add(new PDFEntity(name,false,modifiedDate));
+
+
+        position++;
+        sz--;
+    }//while
+            return personsExt;
+}
         @Override
         protected void onCancelled() {
             mProgress.setVisibility(View.INVISIBLE);

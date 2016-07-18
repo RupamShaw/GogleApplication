@@ -234,7 +234,8 @@ public class ServiceUtility {
         try {//for school folder in googledrive https://drive.google.com/folderview?id=0B5nxCVMvw6oHZVlKV3VoTDRrU0E&usp=sharing
             result = service.files().list().setQ("'"+locdriveFolderID+"' in parents")
                     .setPageSize(10)
-                    .setFields("nextPageToken, files(id, name,description,mimeType)")
+                    .setFields("nextPageToken, files(id, name,description,mimeType,modifiedTime)")
+                    .setOrderBy("modifiedTime")
                     .execute();
         } catch (IOException e) {
             e.printStackTrace();
@@ -247,8 +248,8 @@ public class ServiceUtility {
             System.out.println("Files:");
             StringBuilder sb=new StringBuilder();
             for (File file : files) {
-                sb.append("name" + file.getName() + " id " + file.getId());
-             //   System.out.printf("******Filename %s (%s)\n", file.getName(), file.getId());
+                sb.append("name " + file.getName() + " id " + file.getId()+" modifiedTime "+file.getModifiedTime());
+                System.out.printf("******Filename %s (%s) %s \n", file.getName(), file.getId(), file.getModifiedTime());
                 downloadPDF( service,file);
             }
             filenameid=sb.toString();

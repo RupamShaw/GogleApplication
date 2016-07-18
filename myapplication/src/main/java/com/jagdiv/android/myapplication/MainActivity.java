@@ -1,5 +1,6 @@
 package com.jagdiv.android.myapplication;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -16,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -48,29 +48,31 @@ public class MainActivity extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-      List<Person> persons = new ArrayList<Person>();
+        ArrayList<Person> persons = new ArrayList<Person>();
         persons.add(new Person("Sita","0888",false,date1));
         persons.add(new Person("Gita","0886",false,date2));
         persons.add(new Person("Bita","0887",false,date3));
         persons.add(new Person("Sitam", "0889", false, date2));
        // listDevs.sort((Developer o1, Developer o2)->o1.getAge()-o2.getAge());
-   // persons.sort((Person lhs, Person rhs))->lhs.getEnterDt()-rhs.getEnterDt());
-     //   persons.forEach((person)->System.out.println(person));
-        Collections.sort(persons, new Comparator<Person>() {
-           /* @Override
-            public int compare(Person lhs, Person rhs) {
-                return lhs.getName().compareTo(rhs.getName());
-            }*/
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+         //   persons.sort((Person lhs, Person rhs)->lhs.getEnterDt().compareTo(rhs.getEnterDt()));
+           // persons.forEach((person)->System.out.println(person));
+        }
+
+
+      Collections.sort(persons, new Comparator<Person>(){
+
             @Override
             public int compare(Person lhs, Person rhs) {
                 return lhs.getEnterDt().compareTo(rhs.getEnterDt());
             }
         });
-        int sz=persons.size();
+
+    int sz=persons.size();
         boolean isSeparator = false;
         sz=sz-1;
         int position = 0;
-        ArrayList<Person> personsExt = new ArrayList();
+        ArrayList<Person> personsExt = new ArrayList<Person>();
         while(sz>=0){
             isSeparator = false;
             String name=persons.get(sz).mName;
@@ -121,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
             sz--;
         }//while
 
-        // Creating our custom adapter
+        // Creating                                 our custom adapter
         CustomAdapter adapter = new CustomAdapter(this, personsExt);
 
         // Create the list view and bind the adapter

@@ -1,9 +1,22 @@
-apply plugin: 'com.android.application'
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        // replace with the current version of the android-apt plugin
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+    }
+}
 
+repositories {
+    jcenter()
+}
+apply plugin: 'com.android.application'
+apply plugin: 'android-apt'
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
-    useLibrary  'org.apache.http.legacy'
+  //  useLibrary  'org.apache.http.legacy'
     defaultConfig {
         applicationId "com.jagdiv.android.gogleapplication"
         minSdkVersion 19
@@ -17,6 +30,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
 }
 
 dependencies {
@@ -25,8 +39,13 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.android.support:design:23.4.0'
     compile 'com.google.api-client:google-api-client:1.22.0'
+    //  compile 'com.google.api-client:google-api-client-appengine:1.22.0'
     compile 'com.google.apis:google-api-services-drive:v3-rev30-1.22.0'
     compile 'com.google.http-client:google-http-client-android:1.22.0'
-
-
+    compile('com.google.apis:google-api-services-calendar:v3-rev191-1.22.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
+    compile 'com.github.barteksc:android-pdf-viewer:1.2.0'
+    provided 'org.androidannotations:androidannotations:4.0.0'
+    compile 'org.androidannotations:androidannotations-api:4.0.0'
 }
