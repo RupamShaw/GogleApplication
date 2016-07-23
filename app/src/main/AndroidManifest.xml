@@ -25,11 +25,6 @@
             android:name=".CalendarActivity"
             android:label="@string/title_activity_calendar"
             android:theme="@style/AppTheme.NoActionBar" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".CalendarView"
@@ -41,7 +36,6 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-
         <activity android:name=".BaseActivity" >
         </activity>
         <activity
@@ -49,7 +43,21 @@
             android:label="@string/title_activity_news_letter"
             android:theme="@style/AppTheme.NoActionBar" >
         </activity>
+        <activity
+            android:name=".FormsActivity"
+            android:label="@string/title_activity_Forms"
+            android:theme="@style/AppTheme.NoActionBar" >
 
+        </activity>
+        <activity android:name=".ContactFormActivity" >
+        </activity>
+        <activity android:name=".PushGDActivity" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

@@ -40,5 +40,6 @@
     <string name="title_activity_links">Links</string>
     <string name="title_activity_forms">Forms</string>
     <string name="title_activity_photos">Photos</string>
+    <string name="title_activity_Forms">Forms</string>
 
 </resources>

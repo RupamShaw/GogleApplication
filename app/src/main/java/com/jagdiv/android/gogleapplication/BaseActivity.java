@@ -155,8 +155,8 @@ void toolBar(Bundle savedInstanceState,String toolbarTitle){
         }
         if (mSelectedId == R.id.navigation_item_13) {
             mDrawerLayout.closeDrawer(GravityCompat.START);
-            intent = new Intent(this, PDFActivity.class);
-            intent.putExtra(PDFActivity.EXTRA_TYPE, getResources().getString(R.string.title_activity_forms));
+            intent = new Intent(this, FormsActivity.class);
+           // intent.putExtra(FormsActivity.EXTRA_TYPE, getResources().getString(R.string.title_activity_forms));
             startActivity(intent);
         }
 

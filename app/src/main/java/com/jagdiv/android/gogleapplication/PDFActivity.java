@@ -15,6 +15,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.ChangeList;
+import com.google.api.services.drive.model.Channel;
 import com.google.api.services.drive.model.File;
 
 import java.io.FileInputStream;
@@ -25,7 +28,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+import java.util.UUID;
+//gcm api key com.jagdiv.android.gogleapplication  AIzaSyDiEmKuhmJPNXwp0Jwi56HAR8pUlfXGdbs
 public class PDFActivity extends BaseActivity {
     private FloatingActionButton mFab;
     private TextView mOutputText;
@@ -176,9 +180,17 @@ public class PDFActivity extends BaseActivity {
                     driveFolderID= "0B5nxCVMvw6oHbkM0X0Z6N2dJRzg";//https://drive.google.com/open?id=0B5nxCVMvw6oHbkM0X0Z6N2dJRzg
                 if(name.equals("Forms"))
                     driveFolderID= "0B5nxCVMvw6oHcjRiSmRobWdJT3M";//https://drive.google.com/open?id=0B5nxCVMvw6oHcjRiSmRobWdJT3M
-
+//file id is 16UxG7gjTt4l4bMkSQiTXavr7v1iCD0h3aS9Fp_XushY for contact response
                lstfile = new ServiceUtility().printFile(mService,driveFolderID);
+                Drive.Changes.List request = mService.changes().list(driveFolderID);//pagetoken instead of driveFolderID
+                ChangeList changes = request.execute();
 
+String pageToken="hh";
+                Channel channel = new Channel();
+                channel.setId(UUID.randomUUID().toString());
+                channel.setType("web_hook");
+             //   channel.setAddress(Config.PUSH_NOTIFICATION_ADDRESS);
+                Channel c = mService.changes().watch(pageToken,channel).execute();//pagetoken to set
             } catch (Exception e) {
                 mLastError = e;
                 cancel(true);
