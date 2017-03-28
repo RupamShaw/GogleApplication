@@ -20,6 +20,7 @@ import com.google.api.services.calendar.model.Event;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
@@ -152,11 +153,11 @@ public class CalendarView extends BaseActivity{
         String toolbarTitle =getResources().getString(R.string.title_activity_calendarview);
         toolBar(savedInstanceState,toolbarTitle);
     }
-
-
     protected void setNextMonth() {
-        if (month.get(GregorianCalendar.MONTH) == month
-                .getActualMaximum(GregorianCalendar.MONTH)) {
+        int i = month.get(GregorianCalendar.MONTH);
+        int j=month.getActualMaximum(GregorianCalendar.MONTH);
+        System.out.println("iget "+i+" j act max"+j);
+        if (i ==j ) {
             month.set((month.get(GregorianCalendar.YEAR) + 1),
                     month.getActualMinimum(GregorianCalendar.MONTH), 1);
         } else {
@@ -167,8 +168,12 @@ public class CalendarView extends BaseActivity{
     }
 
     protected void setPreviousMonth() {
-        if (month.get(GregorianCalendar.MONTH) == month
-                .getActualMinimum(GregorianCalendar.MONTH)) {
+
+        int actualMinimum = month.getActualMinimum(GregorianCalendar.MONTH);
+        int i = month.get(GregorianCalendar.MONTH);
+        System.out.println("actualMinimum"+actualMinimum +" i get"+i);
+
+        if (i == actualMinimum) {
             month.set((month.get(GregorianCalendar.YEAR) - 1),
                     month.getActualMaximum(GregorianCalendar.MONTH), 1);
         } else {
@@ -177,6 +182,42 @@ public class CalendarView extends BaseActivity{
         }
 
     }
+/*
+
+    protected void setNextMonth() {
+      System.out.print(" in next actual"+ month.getActualMaximum(GregorianCalendar.MONTH));
+      System.out.println("mnth.tostring"+ month.toString());
+      System.out.println("mnth.getcalmnth"+ month.get(Calendar.MONTH));
+      System.out.println("mnth.getgrcalmnth"+ month.get(GregorianCalendar.MONTH));
+        int pt1=month.get(Calendar.MONTH);
+        int pt2=month.getActualMaximum(GregorianCalendar.MONTH);
+        System.out.println("pt1"+pt1 +" pt2"+pt2 );
+
+        if ( pt1== pt2) {
+            month.set((month.get(GregorianCalendar.YEAR) + 1),
+                    month.getActualMinimum(GregorianCalendar.MONTH), 1);
+        } else {
+            month.set(GregorianCalendar.MONTH,
+                    month.get(GregorianCalendar.MONTH) + 1);
+        }
+    }
+
+    protected void setPreviousMonth() {
+        System.out.print(" in previous actual"+ month.getActualMaximum(GregorianCalendar.MONTH));
+        System.out.println("mnth"+ month.get(GregorianCalendar.MONTH));
+        int pt1=month.get(Calendar.MONTH);
+        int pt2=month.getActualMaximum(GregorianCalendar.MONTH);
+        System.out.println("pt1"+pt1 +" pt2"+pt2 );
+        if (pt1 == pt2)  {
+            month.set((month.get(GregorianCalendar.YEAR) - 1),
+                    month.getActualMaximum(GregorianCalendar.MONTH), 1);
+        } else {
+            month.set(GregorianCalendar.MONTH,
+                    month.get(GregorianCalendar.MONTH) - 1);
+        }
+
+    }
+*/
 
     protected void showToast(String string) {
         Toast.makeText(this, string, Toast.LENGTH_SHORT).show();

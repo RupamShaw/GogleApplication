@@ -239,6 +239,7 @@ public class ServiceUtility {
                     .execute();
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println("exception in printfile to get result");
         }
         String filenameid=null;
         List<File> files = result.getFiles();

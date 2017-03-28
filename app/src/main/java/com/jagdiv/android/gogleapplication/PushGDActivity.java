@@ -15,8 +15,9 @@ public class PushGDActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_push_gd);
+       // new GDriveAsyncTask().execute(new Pair<Context, String>(this, "Manfred"));
     }
-    public class GDriveAsyncTask extends AsyncTask<Pair<Context, String>, Void, List<File> > {
+     class GDriveAsyncTask extends AsyncTask<Pair<Context, String>, Void, List<File> > {
         private Context context;
         private Exception mLastError = null;
         //

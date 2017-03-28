@@ -182,16 +182,17 @@ public class PDFActivity extends BaseActivity {
                     driveFolderID= "0B5nxCVMvw6oHcjRiSmRobWdJT3M";//https://drive.google.com/open?id=0B5nxCVMvw6oHcjRiSmRobWdJT3M
 //file id is 16UxG7gjTt4l4bMkSQiTXavr7v1iCD0h3aS9Fp_XushY for contact response
                lstfile = new ServiceUtility().printFile(mService,driveFolderID);
-                Drive.Changes.List request = mService.changes().list(driveFolderID);//pagetoken instead of driveFolderID
+                /*Drive.Changes.List request = mService.changes().list(driveFolderID);//pagetoken instead of driveFolderID
                 ChangeList changes = request.execute();
 
-String pageToken="hh";
+                 String pageToken="hh";
                 Channel channel = new Channel();
                 channel.setId(UUID.randomUUID().toString());
                 channel.setType("web_hook");
              //   channel.setAddress(Config.PUSH_NOTIFICATION_ADDRESS);
-                Channel c = mService.changes().watch(pageToken,channel).execute();//pagetoken to set
+                Channel c = mService.changes().watch(pageToken,channel).execute();//pagetoken to set*/
             } catch (Exception e) {
+                System.out.println("exception in doinbckgnd");
                 mLastError = e;
                 cancel(true);
                 return null;
@@ -242,7 +243,7 @@ void groupofFIlesByDate(){
 
         @Override
         protected void onPostExecute(List<File> result) {
-
+            System.out.println("in onPOSTExecute");
             mProgress.setVisibility(View.INVISIBLE);
 
             if (result == null) {
@@ -271,6 +272,8 @@ void groupofFIlesByDate(){
     sz=sz-1;
     int position = 0;
     List<PDFEntity> personsExt = new ArrayList<PDFEntity>();
+     System.out.println("before loop");
+
     while(sz>=0){
        // isSeparator = false;
         String name=persons.get(sz).getName();
@@ -278,12 +281,19 @@ void groupofFIlesByDate(){
        // SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String dateStr=persons.get(sz).getModifiedTime()+"";
         //String dateStr = "06/27/2007";
+        System.out.println("datstr"+dateStr);
         Date modifiedDate=null;
-        DateFormat formatter = new SimpleDateFormat("dd-MM-YYYY");
+        //DateFormat formatter = new SimpleDateFormat("dd-MM-YYYY");
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         try {
+            System.out.println("before modifdt");
              modifiedDate = formatter.parse(dateStr);
+            System.out.println("modifdt"+modifiedDate);
+
         } catch (ParseException e) {
             e.printStackTrace();
+            System.out.println("modifdt exception***");
+
         }
         //  Date date5=dts.;
         //char[] nameArray;
@@ -296,9 +306,12 @@ void groupofFIlesByDate(){
             //DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             Date prevDt= null;
             try {
+                System.out.println("beforprevdt");
                 prevDt = formatter.parse(persons.get(sz + 1).getModifiedTime()+"");
+                System.out.println("prevdt"+prevDt);
             } catch (ParseException e) {
                 e.printStackTrace();
+                System.out.println("prevdt exception*******");
             }
         System.out.println(prevDt +"  ** "+ modifiedDate);
             if(prevDt.compareTo(modifiedDate)>0){

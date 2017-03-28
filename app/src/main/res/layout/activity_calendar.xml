@@ -5,7 +5,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.jagdiv.android.gogleapplication.navigationview.CalendarActivity">
+    tools:context="com.jagdiv.android.gogleapplication.CalendarActivity">
 <android.support.design.widget.CoordinatorLayout
     android:id="@+id/root_coordinator"
     xmlns:android="http://schemas.android.com/apk/res/android"
