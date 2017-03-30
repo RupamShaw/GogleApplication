@@ -95,7 +95,8 @@ public class PDFActivity extends BaseActivity {
                 //String s = listfiles.get(position).getName();
                 Object itemAtPosition = mResultsListView.getItemAtPosition(position);
                 Toast.makeText(PDFActivity.this, "Selected file is " + itemAtPosition.toString(),Toast.LENGTH_LONG).show();
-                File file = (File)mResultsListView.getAdapter().getItem(position);
+   //             File file = (File)mResultsListView.getAdapter().getItem(position);
+                PDFEntity file = (PDFEntity)mResultsListView.getAdapter().getItem(position);
                 String filename = file.getName();
                 System.out.println(" filename" +filename );
                 TextView textViewItem = ((TextView) view.findViewById(R.id.newsletterdoc));
