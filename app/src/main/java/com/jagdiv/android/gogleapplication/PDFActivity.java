@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.util.Pair;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,9 +17,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.Change;
 import com.google.api.services.drive.model.ChangeList;
 import com.google.api.services.drive.model.Channel;
 import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.StartPageToken;
+
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicResponseHandler;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -87,7 +98,7 @@ public class PDFActivity extends BaseActivity {
                 new GDriveAsyncTask().execute(new Pair<Context, String>(this, type));
 
         // For ListItem Click
-        mResultsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+             mResultsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> arg0, View view,
@@ -183,15 +194,46 @@ public class PDFActivity extends BaseActivity {
                     driveFolderID= "0B5nxCVMvw6oHcjRiSmRobWdJT3M";//https://drive.google.com/open?id=0B5nxCVMvw6oHcjRiSmRobWdJT3M
 //file id is 16UxG7gjTt4l4bMkSQiTXavr7v1iCD0h3aS9Fp_XushY for contact response
                lstfile = new ServiceUtility().printFile(mService,driveFolderID);
-                /*Drive.Changes.List request = mService.changes().list(driveFolderID);//pagetoken instead of driveFolderID
-                ChangeList changes = request.execute();
 
-                 String pageToken="hh";
+
+               // Drive.Changes.List request = mService.changes().list(driveFolderID);//pagetoken instead of driveFolderID
+                //ChangeList changes = request.execute();
+            StartPageToken pageToken = mService.changes().getStartPageToken().execute();
+          //     String pageToken="hh";
+                String startpageToken=pageToken.getStartPageToken();
+
+               //  String pageToken="hh";
+//                StartPageToken pageToken = drive.changes().getStartPageToken().execute();
+                Drive.Changes.List request1 = mService.changes().list(startpageToken);
+                ChangeList changes1 = request1.execute();
                 Channel channel = new Channel();
                 channel.setId(UUID.randomUUID().toString());
                 channel.setType("web_hook");
+                channel.setAddress("https://ggledrvsrvcaccnt.appspot.com/hello");
+                System.out.println(" **channel Id"+channel.getId()+"paggtoken"+startpageToken);
              //   channel.setAddress(Config.PUSH_NOTIFICATION_ADDRESS);
-                Channel c = mService.changes().watch(pageToken,channel).execute();//pagetoken to set*/
+                String accessToken="PP";
+              //httpClient(channel.getId(),mService, accessToken);
+
+                Channel c = mService.changes().watch(startpageToken, channel).execute();
+                System.out.println("ResourceId"+c.getResourceId());
+                System.out.println("Kind"+c.getKind());
+                System.out.println("resuri"+c.getResourceUri());
+                System.out.println("token"+c.getToken());
+                System.out.println("expi"+c.getExpiration());
+                //System.out.println(c.getPayload());
+                //String pageToken1 = pageToken.getCurrPageToken();
+              //  Drive.Changes.List request = mService.changes().list(startpageToken);
+
+                //ChangeList changes = request.execute();
+
+                //Change chg= changes.getChanges().get(0);
+                //String filechaneg=chg.getFile().getDescription();
+                //System.out.println("*********filechg"+filechaneg);
+                //String pageToken = channelInfo.getCurrPageToken();
+                //List<Change> changes = service.changes().list(pageToken).execute().getChanges();
+               // Channel c = mService.changes().watch(channel).execute();//pagetoken to set*/
+                //Channel c = mService.changes().watch(pageToken,channel).execute();//pagetoken to set*/
             } catch (Exception e) {
                 System.out.println("exception in doinbckgnd");
                 mLastError = e;
@@ -201,6 +243,39 @@ public class PDFActivity extends BaseActivity {
             return lstfile;
         }
 
+void httpClient(String Chnlid,com.google.api.services.drive.Drive mService,String accessToken ){
+/*    class SendPostReqAsyncTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... params) {
+
+
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpPost httppost = new HttpPost("https://www.googleapis.com/drive/v3/changes/watch");
+            httppost.setHeader("Authorization: Bearer", accessToken);
+            httppost.addHeader("Authorization: Bearer", accessToken);
+            Log.d("DEBUG", "HEADERS: " + httppost.getFirstHeader("Authorization: Bearer"));
+
+            httppost.setHeader("Content-Type", "application/json");
+            //httppost.setHeader("Authorization", "Bearer " + finalToken);
+
+
+            JSONObject json = new JSONObject();
+// json.put ...
+// Send it as request body in the post request
+
+            //StringEntity params = new StringEntity(json.toString());
+            //httppost.setEntity(params);
+            ResponseHandler<String> responseHandler = new BasicResponseHandler();
+            //String responseBody = httpclient.execute(httppost, responseHandler);
+            httpclient.getConnectionManager().shutdown();
+            //Log.d("DEBUG", "RESPONSE: " + responseBody);
+//    httpClient.getCredentialsProvider().setCredentials(
+            //          new AuthScope(hostname, port),
+            //        new UsernamePasswordCredentials(user, pass));
+        }
+    }
+        */}
 void groupofFIlesByDate(){
     /*File[] files = ...;
 
@@ -226,7 +301,7 @@ void groupofFIlesByDate(){
         } catch (ParseException ex) {
             ex.printStackTrace();
         }
-    }
+}
 
 // Now, you can process the groups individually...
     for (Date date : mapFiles.keySet()) {
@@ -234,8 +309,8 @@ void groupofFIlesByDate(){
         for (File file : mapFiles.get(date)) {
             System.out.println("    " + file);
         }
-    }*/
-}
+    }
+*/}
         @Override
         protected void onPreExecute() {
             mOutputText.setText("");

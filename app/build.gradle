@@ -1,41 +1,48 @@
- apply plugin: 'com.android.application'
+apply plugin: 'com.android.application'
 //apply plugin: 'android-apt'
- android {
-     compileSdkVersion 24
-     buildToolsVersion '25.0.0'
-       useLibrary  'org.apache.http.legacy'
-     defaultConfig {
-         applicationId "com.jagdiv.android.gogleapplication"
-         minSdkVersion 19
-         targetSdkVersion 24
-         versionCode 1
-         versionName "1.0"
-     }
-     //SHA1: CD:46:59:76:1D:57:1E:55:69:45:8E:E2:F6:D5:AC:5E:0D:8F:BB:38
-     buildTypes {
-         release {
-             minifyEnabled false
-             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-         }
-     }
+android {
+    compileSdkVersion 24
+    buildToolsVersion '25.0.0'
+    useLibrary 'org.apache.http.legacy'
+    defaultConfig {
+        applicationId "com.jagdiv.android.gogleapplication"
+        minSdkVersion 19
+        targetSdkVersion 24
+        versionCode 1
+        versionName "1.0"
+    }
+    //SHA1: CD:46:59:76:1D:57:1E:55:69:45:8E:E2:F6:D5:AC:5E:0D:8F:BB:38
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
 
-     productFlavors {
-     }
- }
+    productFlavors {
+    }
+}
 
- dependencies {
-     compile fileTree(include: ['*.jar'], dir: 'libs')
-     testCompile 'junit:junit:4.12'
-     compile 'com.android.support:appcompat-v7:24.0.0'
-     compile 'com.android.support:design:24.0.0'
-     compile 'com.google.api-client:google-api-client:1.22.0'
-     //  compile 'com.google.api-client:google-api-client-appengine:1.22.0'
-     compile 'com.google.apis:google-api-services-drive:v3-rev30-1.22.0'
-     compile 'com.google.http-client:google-http-client-android:1.22.0'
-     compile('com.google.apis:google-api-services-calendar:v3-rev191-1.22.0') {
-         exclude group: 'org.apache.httpcomponents'
-     }
-     compile 'com.github.barteksc:android-pdf-viewer:1.2.0'
-     provided 'org.androidannotations:androidannotations:4.0.0'
-     compile 'org.androidannotations:androidannotations-api:4.0.0'
- }
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    //  compile 'com.google.api-client:google-api-client-appengine:1.22.0'
+
+//google login starts
+    //google login ends
+    compile('com.google.apis:google-api-services-calendar:v3-rev191-1.22.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
+    compile 'com.android.support:appcompat-v7:24.0.0'
+    compile 'com.android.support:design:24.0.0'
+    compile 'com.google.api-client:google-api-client:1.22.0'
+    compile 'com.google.android.gms:play-services-auth:9.8.0'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'com.google.apis:google-api-services-drive:v3-rev30-1.22.0'
+    compile 'com.google.http-client:google-http-client-android:1.22.0'
+    compile 'com.github.barteksc:android-pdf-viewer:1.2.0'
+    compile 'org.androidannotations:androidannotations-api:4.0.0'
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    testCompile 'junit:junit:4.12'
+    provided 'org.androidannotations:androidannotations:4.0.0'
+}
+apply plugin: 'com.google.gms.google-services'

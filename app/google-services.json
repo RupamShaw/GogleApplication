@@ -1,0 +1,110 @@
+{
+  "project_info": {
+    "project_number": "1006959462162",
+    "project_id": "ggledrvsrvcaccnt"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1006959462162:android:30af6e46149f1f1f",
+        "android_client_info": {
+          "package_name": "com.jagdiv.android.gogleapplication.gcm.backend"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1006959462162-rcgft97o00o3m76i3rb4e2v06toe86dv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDa3f52rCY9dllUPrI1NsQhG_8LlEVApeo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1006959462162:android:36e9eb5ebee68054",
+        "android_client_info": {
+          "package_name": "com.jagdiv.android.gogleapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1006959462162-rcgft97o00o3m76i3rb4e2v06toe86dv.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "1006959462162-4r3odedkv819tid08rkven0lbqs8nejb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jagdiv.android.gogleapplication",
+            "certificate_hash": "3470f31840b4cffad48cd24d22b8e474f1d23c0d"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDa3f52rCY9dllUPrI1NsQhG_8LlEVApeo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1006959462162:android:a3b6ed574ead13dc",
+        "android_client_info": {
+          "package_name": "com.jagdiv.android.gcmappeng"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1006959462162-rcgft97o00o3m76i3rb4e2v06toe86dv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDa3f52rCY9dllUPrI1NsQhG_8LlEVApeo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
