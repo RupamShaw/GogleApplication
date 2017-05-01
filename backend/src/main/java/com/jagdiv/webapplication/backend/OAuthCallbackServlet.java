@@ -32,7 +32,9 @@ public class OAuthCallbackServlet extends AbstractAppEngineAuthorizationCodeCall
     @Override
     protected String getRedirectUri(HttpServletRequest req) throws ServletException, IOException {
         String userId=getUserId(req);
-        return OAuthUtils.getRedirectUri(req);
+        String rediruri=OAuthUtils.getRedirectUri(req);
+        System.out.println("redirecturi"+rediruri);
+        return rediruri;
     }
 
     @Override
@@ -47,10 +49,22 @@ public class OAuthCallbackServlet extends AbstractAppEngineAuthorizationCodeCall
         //Have some nice confirmation page
         //    resp.sendRedirect("http://127.0.0.1:8080/newindex.html");
         List<File> files =OAuthUtils.getDataFromApi(credential);
+        System.out.println("in OAuthCallbackservlet.onSuccess() got files ");
+        String name = req.getParameter("name");
+        name="NewsLetters";
+        System.out.println("name"+name);
+        OAuthUtils.listFileinFolder(credential, name );
+        OAuthUtils.pollingChangesinDrive( credential );
         req.setAttribute("Files" , stringBuilder( files));
+        try{
         RequestDispatcher rd = req.getRequestDispatcher(OAuthUtils.MAIN_SERVLET_PATH);
         rd.forward(req, resp);
-        //resp.sendRedirect(OAuthUtils.MAIN_SERVLET_PATH);
+        }catch(IOException e){
+            System.out.println(e.getMessage());
+            resp.getWriter().println(" not able to see jsp");
+
+        }
+            //resp.sendRedirect(OAuthUtils.MAIN_SERVLET_PATH);
 
     }
     String stringBuilder(List<File> files){

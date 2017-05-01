@@ -1,4 +1,4 @@
- <%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
+ <%@page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 
@@ -35,7 +35,7 @@
                 <h1>Hello, App Engine!</h1>
 <%=  request.getAttribute("Files")  %>
 ${Files}
-                <p>Enter your name and press the button   below to call <code>MyServlet</code>.</p>
+                <p>Enter your name and press the button   below to call <code>DriveServlet</code>.</p>
 
                 <form action="/hello" method="POST">
                     <div class="input-group">
