@@ -9,7 +9,14 @@
         <servlet-class>com.jagdiv.webapplication.backend.OAuthCallbackServlet</servlet-class>
     </servlet>
 
-
+    <servlet>
+        <servlet-name>MyServlet</servlet-name>
+        <servlet-class>com.jagdiv.webapplication.backend.MyServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MyServlet</servlet-name>
+        <url-pattern>/hello</url-pattern>
+    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>OAuthCallbackServlet</servlet-name>
         <url-pattern>/oauth2callback</url-pattern>
@@ -17,7 +24,7 @@
 
     <servlet-mapping>
         <servlet-name>DriveServlet</servlet-name>
-        <url-pattern>/hello</url-pattern>
+        <url-pattern>/drive</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>

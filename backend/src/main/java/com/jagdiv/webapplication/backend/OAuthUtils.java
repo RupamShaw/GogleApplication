@@ -13,6 +13,7 @@ import com.google.api.client.http.GenericUrl;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.Change;
 import com.google.api.services.drive.model.ChangeList;
 import com.google.api.services.drive.model.Channel;
 import com.google.api.services.drive.model.File;
@@ -29,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -36,13 +38,15 @@ import javax.servlet.http.HttpServletRequest;
  * Created by Dell on 3/08/2016.
  */
 public class OAuthUtils {
+    private static final Logger Log = Logger.getLogger(OAuthCallbackServlet.class.getName());
+
     private static final String CLIENT_SECRETS_FILE_PATH = "/client_secrets.json";
     static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     static final UrlFetchTransport HTTP_TRANSPORT_REQUEST = new UrlFetchTransport();
     private static final Set<String> PERMISSION_SCOPES = Collections.singleton(DriveScopes.DRIVE_METADATA);
     static final AppEngineDataStoreFactory DATA_STORE_FACTORY = AppEngineDataStoreFactory.getDefaultInstance();
     private static final String AUTH_CALLBACK_SERVLET_PATH = "/oauth2callback";
-    static final String MAIN_SERVLET_PATH = "/drivelist.jsp";
+    static final String MAIN_SERVLET_PATH = "/hello";
     private static final String APPLICATION_NAME =
             "Drive API Java Quickstart";
     private static GoogleClientSecrets clientSecrets = null;
@@ -60,7 +64,7 @@ public class OAuthUtils {
 
     static GoogleAuthorizationCodeFlow initializeFlow() throws IOException {
 
-        System.out.println("in initializeFlow oauth");
+        Log.info("in initializeFlow oauth");
         return new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT_REQUEST,
                 JSON_FACTORY, getClientSecrets(), PERMISSION_SCOPES)
                 //   JSON_FACTORY, getClientSecrets().getDetails().getClientId(), getClientSecrets().getDetails().getClientSecret(), PERMISSION_SCOPES)
@@ -70,27 +74,32 @@ public class OAuthUtils {
     }
 
     static String getRedirectUri(HttpServletRequest req) {
-        System.out.println("Started from the bottom oauth\n");
+        Log.info("Started from the bottom oauth\n");
         GenericUrl requestUrl = new GenericUrl(req.getRequestURL().toString());
-        System.out.println(" url*********"+req.getRequestURL().toString());
+        Log.info(" url*********"+req.getRequestURL().toString());
         requestUrl.setRawPath(AUTH_CALLBACK_SERVLET_PATH);
         return requestUrl.build();
     }
      static Drive getDriveService(Credential credential ) throws IOException {
         //  Credential credential = authorize( in,file);
-        return new Drive.Builder(
-                HTTP_TRANSPORT_REQUEST, JSON_FACTORY, credential)
-                .setApplicationName(APPLICATION_NAME)
-                .build();
-    }
+         Drive drive=null;
+        // try {
+    drive = new Drive.Builder(
+            HTTP_TRANSPORT_REQUEST, JSON_FACTORY, credential)
+            .setApplicationName(APPLICATION_NAME)
+            .build();
+        //}catch (IOException e){
+
+    //    }
+         return drive;     }
     public static  String stringBuilder(List<File> files){
         // Create a new StringBuilder.
         StringBuilder builder = new StringBuilder();
         if (files == null || files.size() == 0) {
-            System.out.println("No files found.");
+            Log.info("No files found.");
             builder.append("No files found.");
         } else {
-            System.out.println("Files: filename    fileid");
+            Log.info("Files: filename    fileid");
             for (File file : files) {
                 // System.out.printf("%s (%s)\n", file.getName(), file.getId());
                 builder.append(file.getName() +"  "+file.getId());
@@ -101,7 +110,7 @@ public class OAuthUtils {
         String result = builder.toString();
 
         // Print result.
-        System.out.println(result);
+        Log.info(result);
         return result;
     }
      public static List<File> printFile(Drive service,String driveFolderID){
@@ -116,14 +125,14 @@ public class OAuthUtils {
                     .execute();
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("exception in printfile to get result");
+            Log.severe("exception in printfile to get result");
         }
         String filenameid=null;
         List<File> files = result.getFiles();
         if (files == null || files.size() == 0) {
-            System.out.println("No files found.");
+            Log.info("No files found.");
         } else {
-            System.out.println("Files:");
+            Log.info("Files:");
             StringBuilder sb=new StringBuilder();
             for (File file : files) {
                 sb.append("name " + file.getName() + " id " + file.getId()+" modifiedTime "+file.getModifiedTime());
@@ -131,15 +140,15 @@ public class OAuthUtils {
               //  downloadPDF( service,file);
             }
             filenameid=sb.toString();
-            System.out.println("filename  ****"+filenameid);
+            Log.info("filename  ****"+filenameid);
             // File[] filearray = (File[]) files.toArray();
-            //System.out.println("filearray  ****"+filearray.length);
+            //Log.info("filearray  ****"+filearray.length);
 
         }
         return files ;
     }
     private void downloadPDF(Drive service,File file) {
-        //System.out.println("in download pdf file.getViewersCanCopyContent()" + file.getViewersCanCopyContent());
+        //Log.info("in download pdf file.getViewersCanCopyContent()" + file.getViewersCanCopyContent());
      /* HttpResponse resp = service.getRequestFactory()
               .buildGetRequest(new GenericUrl(file.getViewersCanCopyContent())).execute();
       fileSize = resp.getHeaders().getContentLength();
@@ -150,7 +159,7 @@ public class OAuthUtils {
         // String fileId = "1ZdR3L3qP4Bkq8noWLJHSr_iBau0DNT4Kli4SxNc2YEo";
         //  OutputStream outputStream = new ByteArrayOutputStream();
         //   String filecontents = "";
-        // System.out.println("file size***" + file.getSize() + file.size());
+        // Log.info("file size***" + file.getSize() + file.size());
         //  ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         OutputStream outputStream = null;
         java.io.File file1=null;
@@ -159,7 +168,7 @@ public class OAuthUtils {
         //outputStream1=  openFileOutput(file.getFullFileExtension(), Context.MODE_PRIVATE);
         try {
             //  File file1 = new File(Environment.getExternalStorageDirectory(), "MyCache");
-            System.out.println("**file.getName()()"+file.getName());
+            Log.info("**file.getName()()"+file.getName());
            // file1 = new java.io.File(Environment.getExternalStorageDirectory(),file.getName() );
             // cachefile(getContext);
             //     java.io.File  file1 = new java.io.File(getCacheDir(), "MyCache");
@@ -171,22 +180,22 @@ public class OAuthUtils {
         try {
 //          List<Permission> permissions = file.getPermissions();
 //          for (Permission per:permissions ) {
-//              System.out.println("permis** "+per.toString());
+//              Log.info("permis** "+per.toString());
 //          }
 //serv// ice.getRequestFactory().buildGetRequest(file.getD)
             service.files().get(file.getId()).executeMediaAndDownloadTo(outputStream);
      /*    InputStream in = new ByteArrayInputStream(outputStream.toByteArray());
      // if (outputStream.size())
-          System.out.println("os size"+outputStream.size()+" inps size "+in.read ());
+          Log.info("os size"+outputStream.size()+" inps size "+in.read ());
              b= outputStream.toByteArray();
-           System.out.println(b.toString());*/
+           Log.info(b.toString());*/
 
-            //   System.out.println("***outputSt.tostring()" + outputStream.toString());
+            //   Log.info("***outputSt.tostring()" + outputStream.toString());
             // filecontents = outputStream.toString();
 
         } catch (Exception e) {
             //} catch (IOException e) {
-            System.out.println("file is empty or not able to read");
+            Log.severe("file is empty or not able to read");
             e.printStackTrace();
             //return null;
         }
@@ -194,7 +203,7 @@ public class OAuthUtils {
         //    return filecontents;
     }
     public static List<File> listFileinFolder(Credential context,String name ) {
-        System.out.println("DriveServlet.listFileinFolder ()");
+        Log.info("listFileinFolder ()");
         //  context = params[0].first;
         //name = params[0].second;
         List<File> lstfile = null;
@@ -243,18 +252,18 @@ public class OAuthUtils {
             channel.setId(UUID.randomUUID().toString());
             channel.setType("web_hook");
             channel.setAddress("https://ggledrvsrvcaccnt.appspot.com/hello");
-            System.out.println(" **channel Id"+channel.getId()+"paggtoken"+startpageToken);
+            Log.info(" **channel Id"+channel.getId()+"paggtoken"+startpageToken);
             //   channel.setAddress(Config.PUSH_NOTIFICATION_ADDRESS);
             String accessToken="PP";
             //httpClient(channel.getId(),mService, accessToken);
 
             Channel c = mService.changes().watch(startpageToken, channel).execute();
-            System.out.println("ResourceId"+c.getResourceId());
-            System.out.println("Kind"+c.getKind());
-            System.out.println("resuri"+c.getResourceUri());
-            System.out.println("token"+c.getToken());
-            System.out.println("expi"+c.getExpiration());
-            //System.out.println(c.getPayload());
+            Log.info("ResourceId"+c.getResourceId());
+            Log.info("Kind"+c.getKind());
+            Log.info("resuri"+c.getResourceUri());
+            Log.info("token"+c.getToken());
+            Log.info("expi"+c.getExpiration());
+            //Log.info(c.getPayload());
             //String pageToken1 = pageToken.getCurrPageToken();
             //  Drive.Changes.List request = mService.changes().list(startpageToken);
 
@@ -262,13 +271,13 @@ public class OAuthUtils {
 
             //Change chg= changes.getChanges().get(0);
             //String filechaneg=chg.getFile().getDescription();
-            //System.out.println("*********filechg"+filechaneg);
+            //Log.info("*********filechg"+filechaneg);
             //String pageToken = channelInfo.getCurrPageToken();
             //List<Change> changes = service.changes().list(pageToken).execute().getChanges();
             // Channel c = mService.changes().watch(channel).execute();//pagetoken to set*/
             //Channel c = mService.changes().watch(pageToken,channel).execute();//pagetoken to set*/
         } catch (Exception e) {
-            System.out.println("exception in doinbckgnd");
+            Log.severe("listFileinFolder()");
 
             return null;
         }
@@ -282,19 +291,48 @@ public class OAuthUtils {
 
             response = driveService.changes().getStartPageToken().execute();
 
-
-
+            Log.info("Start token: " + response.getStartPageToken());
+            retreivepollchanges(response.getStartPageToken(),  credential );
+            Log.info("after ends of polling");
         } catch (IOException e) {
+           Log.severe("pollingChangesinDrive()");
             e.printStackTrace();
         }
-        System.out.println("Start token: " + response.getStartPageToken());
+
     }
+   static void retreivepollchanges(String savedStartPageToken, Credential credential ){
+        try {
+            Log.info("in retrieve poll changes");
+            Drive driveService = getDriveService(credential);
+
+            // Begin with our last saved start token for this user or the
+// current token from getStartPageToken()
+            String pageToken = savedStartPageToken;
+            while (pageToken != null) {
+                ChangeList changes = driveService.changes().list(pageToken)
+                        .execute();
+                for (Change change : changes.getChanges()) {
+                    // Process change
+                    Log.info("Change found for file: " + change.getFileId());
+                }
+                if (changes.getNewStartPageToken() != null) {
+                    // Last page, save this token for the next polling interval
+                    savedStartPageToken = changes.getNewStartPageToken();
+                }
+                pageToken = changes.getNextPageToken();
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            Log.severe("exception in retrieve polling changes");
+        }}
     public static List<File> getDataFromApi(Credential credential) throws IOException {
+
         Drive service=null;
         try {
             service = getDriveService(credential);
         }catch (IOException e){
-            throw new IOException( "Invalid Credentials");
+           Log.severe("getDataFromApi()");
+            throw new IOException( "Invalid Credentials from OAuthUtils.getDriveService()");
 
         }// Print the names and IDs for up to 10 files.
 
@@ -304,13 +342,15 @@ public class OAuthUtils {
                 .execute();
         List<File> files = result.getFiles();
         if (files == null || files.size() == 0) {
-            System.out.println("No files found.");
+            Log.info("No files found.");
         } else {
-            System.out.println("Files:");
+            Log.info("Files:");
             for (File file : files) {
+                Log.info(" file.getName() "+file.getName() +" file.getId "+file.getId());
                 System.out.printf("%s (%s)\n", file.getName(), file.getId());
             }
         }
         return files;
     }
+
 }

@@ -15,6 +15,8 @@ import com.google.api.services.drive.model.StartPageToken;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Logger;
+
 import com.google.api.services.drive.Drive;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -25,24 +27,25 @@ public class DriveServlet extends AbstractAppEngineAuthorizationCodeServlet {
 
     private static final String MY_APP_NAME = "Drive API demo";
     private static final long serialVersionUID = 1L;
+    private static final Logger Log = Logger.getLogger(OAuthCallbackServlet.class.getName());
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 
-        System.out.println("in doget");
+        Log.info("in doget");
         AuthorizationCodeFlow authFlow = initializeFlow();
-        System.out.println("in doget 1");
+        Log.info("in doget 1");
         Credential credential = authFlow.loadCredential(getUserId(req));
-        System.out.println("in doget 2");
+        Log.info("in doget 2");
         if (credential == null) {
             resp.sendRedirect(authFlow.newAuthorizationUrl()
                     .setRedirectUri(OAuthUtils.getRedirectUri(req)).build());
             return;
         }
-        System.out.println("in doget 3");
+        Log.info("in doget 3");
         Drive drive = new Drive.Builder(OAuthUtils.HTTP_TRANSPORT_REQUEST,
                 OAuthUtils.JSON_FACTORY, credential).setApplicationName(MY_APP_NAME).build();
-        System.out.println("in doget 4");
+        Log.info("in doget 4");
         // API calls (examines drive structure)
     /*    DriveMiner miner = new DriveMiner(drive);
         req.setAttribute("miner", miner);
@@ -53,7 +56,7 @@ public class DriveServlet extends AbstractAppEngineAuthorizationCodeServlet {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        System.out.println("in dopost");
+        Log.info("in dopost of drivesrvlet");
         String name = req.getParameter("name");
         resp.setContentType("text/plain");
 
@@ -63,25 +66,36 @@ public class DriveServlet extends AbstractAppEngineAuthorizationCodeServlet {
         }
         try {
             //resp.getWriter().println(" trying to access drive in dopost of driveservlet");
-            System.out.println("in dopost1");
+            Log.info("in dopost1 driveserlet");
             AuthorizationCodeFlow authFlow = initializeFlow();
-            System.out.println("in dopost2");
+            Log.info("in dopost2");
             Credential credential = authFlow.loadCredential(getUserId(req));
-            System.out.println("in dopost3");
+            Log.info("in dopost3");
             if (credential == null) {
-                System.out.println("in dopost4");
+                Log.info("in dopost4");
                 resp.sendRedirect(authFlow.newAuthorizationUrl()
                         .setRedirectUri(getRedirectUri(req)).build());
                 return;
             }
-            System.out.println("in dopost5 do stuff for drive");
-            System.out.println("in dopost 6");
+            Log.info("in dopost5 do stuff for drive");
+            Log.info("in dopost 6");
            // Drive drive = new Drive.Builder(OAuthUtils.HTTP_TRANSPORT_REQUEST,
              //       OAuthUtils.JSON_FACTORY, credential).setApplicationName(MY_APP_NAME).build();
+
+
             List<File> files=null;
             try {
                  files = OAuthUtils.getDataFromApi(credential);
-                System.out.println("in dopost 7");
+                   req.setAttribute("Files" , OAuthUtils.stringBuilder( files));
+
+                Log.info("in dopost 7 driveservlet");
+              //  String name = req.getParameter("name");
+                String name2="NewsLetters";
+                Log.info("name2 "+name2);
+                  OAuthUtils.listFileinFolder(credential, name2 );
+                Log.info("name2 "+name2);
+                OAuthUtils.pollingChangesinDrive( credential );
+
                 req.setAttribute("Files" , OAuthUtils.stringBuilder( files));
                 //listFileinFolder(credential, name );
                 RequestDispatcher rd = req.getRequestDispatcher(OAuthUtils.MAIN_SERVLET_PATH);
@@ -89,11 +103,12 @@ public class DriveServlet extends AbstractAppEngineAuthorizationCodeServlet {
                 //    getDataFromApi(getDriveService(credential));
 
             }catch(IOException e){
-                System.out.println(e.getMessage());
+                Log.severe(e.getMessage());
                 resp.getWriter().println(" Invalid Credentials for accesing drive");
 
             }
                     } catch (Exception e) {
+            Log.severe(e.getMessage());
             e.printStackTrace();
         }
 
@@ -103,7 +118,7 @@ public class DriveServlet extends AbstractAppEngineAuthorizationCodeServlet {
 
     @Override
     protected AuthorizationCodeFlow initializeFlow() throws ServletException, IOException {
-        System.out.println("in initializeFlow Driveservlet");
+        Log.info("in initializeFlow Driveservlet");
         return OAuthUtils.initializeFlow();
     }
 
@@ -111,7 +126,7 @@ public class DriveServlet extends AbstractAppEngineAuthorizationCodeServlet {
     protected String getRedirectUri(HttpServletRequest req) throws ServletException, IOException {
         //  String userId =getUserId(req);
         //OAuthUtils.loadDriveClient(userId);
-        System.out.println("in getRedirectUri from Driveservlet  \n");
+        Log.info("in getRedirectUri from Driveservlet  \n");
         return OAuthUtils.getRedirectUri(req);
     }
 

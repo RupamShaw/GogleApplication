@@ -19,8 +19,8 @@ apply plugin: 'java'
 apply plugin: 'war'
 apply plugin: 'appengine'
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'lib')
@@ -28,9 +28,9 @@ dependencies {
     compile 'javax.servlet:servlet-api:2.5'
     compile 'com.google.oauth-client:google-oauth-client:1.20.0'
     compile 'com.google.oauth-client:google-oauth-client-servlet:1.20.0'
-    compile 'com.google.oauth-client:google-oauth-client-appengine:1.20.0'
-    compile 'com.google.api-client:google-api-client:1.20.0'
-    compile 'com.google.apis:google-api-services-drive:v3-rev71-1.22.0'
+compile 'com.google.oauth-client:google-oauth-client-appengine:1.20.0'
+compile 'com.google.api-client:google-api-client:1.20.0'
+compile 'com.google.apis:google-api-services-drive:v3-rev71-1.22.0'
 
 }
 

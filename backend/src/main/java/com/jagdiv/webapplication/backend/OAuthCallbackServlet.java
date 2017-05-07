@@ -12,6 +12,7 @@ import com.google.api.services.drive.model.File;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class OAuthCallbackServlet extends AbstractAppEngineAuthorizationCodeCallbackServlet {
     private static final long serialVersionUID = 1L;
+    private static final Logger Log = Logger.getLogger(OAuthCallbackServlet.class.getName());
 
     @Override
     protected AuthorizationCodeFlow initializeFlow() throws ServletException, IOException {
@@ -33,14 +35,14 @@ public class OAuthCallbackServlet extends AbstractAppEngineAuthorizationCodeCall
     protected String getRedirectUri(HttpServletRequest req) throws ServletException, IOException {
         String userId=getUserId(req);
         String rediruri=OAuthUtils.getRedirectUri(req);
-        System.out.println("redirecturi"+rediruri);
+        Log.info("redirecturi"+rediruri);
         return rediruri;
     }
 
     @Override
     protected void onSuccess(HttpServletRequest req, HttpServletResponse resp,
                              Credential credential) throws ServletException, IOException {
-        System.out.println("in onsuccess");
+        Log.info("in onsuccess");
 /*        StoredCredential storeCredential = new StoredCredential(credential);
         DataStore<StoredCredential> newDataStore = OAuthUtils.DATA_STORE_FACTORY .getDataStore("credentials");
         //Update with actual username
@@ -49,50 +51,29 @@ public class OAuthCallbackServlet extends AbstractAppEngineAuthorizationCodeCall
         //Have some nice confirmation page
         //    resp.sendRedirect("http://127.0.0.1:8080/newindex.html");
         List<File> files =OAuthUtils.getDataFromApi(credential);
-        System.out.println("in OAuthCallbackservlet.onSuccess() got files ");
+        Log.info("in OAuthCallbackservlet.onSuccess() got files ");
         String name = req.getParameter("name");
         name="NewsLetters";
-        System.out.println("name"+name);
+        Log.info("name"+name);
         OAuthUtils.listFileinFolder(credential, name );
         OAuthUtils.pollingChangesinDrive( credential );
-        req.setAttribute("Files" , stringBuilder( files));
+        req.setAttribute("Files" , OAuthUtils.stringBuilder( files));
         try{
         RequestDispatcher rd = req.getRequestDispatcher(OAuthUtils.MAIN_SERVLET_PATH);
         rd.forward(req, resp);
         }catch(IOException e){
-            System.out.println(e.getMessage());
+            Log.severe(e.getMessage());
             resp.getWriter().println(" not able to see jsp");
 
         }
             //resp.sendRedirect(OAuthUtils.MAIN_SERVLET_PATH);
 
     }
-    String stringBuilder(List<File> files){
-        // Create a new StringBuilder.
-        StringBuilder builder = new StringBuilder();
-        if (files == null || files.size() == 0) {
-            System.out.println("No files found.");
-            builder.append("No files found.");
-        } else {
-            System.out.println("Files: filename    fileid");
-            for (File file : files) {
-                // System.out.printf("%s (%s)\n", file.getName(), file.getId());
-                builder.append(file.getName() +"  "+file.getId());
-            }
-        }
-
-        // Convert to string.
-        String result = builder.toString();
-
-        // Print result.
-        System.out.println(result);
-        return result;
-    }
 
     @Override
     protected void onError(HttpServletRequest req, HttpServletResponse resp,
                            AuthorizationCodeResponseUrl errorResponse) throws ServletException, IOException {
-        System.out.println("Error from oauthcalllback!");
+        Log.info("Error from oauthcalllback!");
         String nickname="";
         // String nickname = UserServiceFactory.getUserService().getCurrentUser().getNickname();
         resp.getWriter().print(
