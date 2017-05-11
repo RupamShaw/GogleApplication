@@ -27,7 +27,7 @@ public class DriveServlet extends AbstractAppEngineAuthorizationCodeServlet {
 
     private static final String MY_APP_NAME = "Drive API demo";
     private static final long serialVersionUID = 1L;
-    private static final Logger Log = Logger.getLogger(OAuthCallbackServlet.class.getName());
+    private static final Logger Log = Logger.getLogger(DriveServlet.class.getName());
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
@@ -68,7 +68,7 @@ public class DriveServlet extends AbstractAppEngineAuthorizationCodeServlet {
             //resp.getWriter().println(" trying to access drive in dopost of driveservlet");
             Log.info("in dopost1 driveserlet");
             AuthorizationCodeFlow authFlow = initializeFlow();
-            Log.info("in dopost2");
+            Log.info("in dopost2 getUserId(req)"+getUserId(req));
             Credential credential = authFlow.loadCredential(getUserId(req));
             Log.info("in dopost3");
             if (credential == null) {
@@ -104,7 +104,8 @@ public class DriveServlet extends AbstractAppEngineAuthorizationCodeServlet {
 
             }catch(IOException e){
                 Log.severe(e.getMessage());
-                resp.getWriter().println(" Invalid Credentials for accesing drive");
+                e.printStackTrace();
+                resp.getWriter().println(" Invalid Credentials for accesing drive in driveservlet.dopost");
 
             }
                     } catch (Exception e) {
@@ -118,8 +119,14 @@ public class DriveServlet extends AbstractAppEngineAuthorizationCodeServlet {
 
     @Override
     protected AuthorizationCodeFlow initializeFlow() throws ServletException, IOException {
-        Log.info("in initializeFlow Driveservlet");
-        return OAuthUtils.initializeFlow();
+      try {
+          Log.info("in initializeFlow Driveservlet");
+          return OAuthUtils.initializeFlow();
+
+      }catch(Exception e){
+          Log.severe("Not able to authorize in intialflow");
+          return null;
+      }
     }
 
     @Override
