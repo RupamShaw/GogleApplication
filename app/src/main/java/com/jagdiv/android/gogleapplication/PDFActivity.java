@@ -95,6 +95,7 @@ public class PDFActivity extends BaseActivity {
         // calendarIntent=new Intent(this,CalendarView.class );
     //    final  List<File> listfiles;
       //  listfiles= (List<File>)
+
                 new GDriveAsyncTask().execute(new Pair<Context, String>(this, type));
 
         // For ListItem Click
@@ -204,24 +205,26 @@ public class PDFActivity extends BaseActivity {
 
                //  String pageToken="hh";
 //                StartPageToken pageToken = drive.changes().getStartPageToken().execute();
-                Drive.Changes.List request1 = mService.changes().list(startpageToken);
-                ChangeList changes1 = request1.execute();
-                Channel channel = new Channel();
-                channel.setId(UUID.randomUUID().toString());
-                channel.setType("web_hook");
-                channel.setAddress("https://ggledrvsrvcaccnt.appspot.com/hello");
-                System.out.println(" **channel Id"+channel.getId()+"paggtoken"+startpageToken);
-             //   channel.setAddress(Config.PUSH_NOTIFICATION_ADDRESS);
-                String accessToken="PP";
-              //httpClient(channel.getId(),mService, accessToken);
+              //  Drive.Changes.List request1 = mService.changes().list(startpageToken);
+                ChangeList changes = mService.changes().list(startpageToken).execute();
+                System.out.println("pagetoken"+startpageToken+"changes.getChanges after setFields 3411 kind response" + changes.getChanges().size() + " response  change.getchanges"+changes.getChanges());
 
-                Channel c = mService.changes().watch(startpageToken, channel).execute();
-                System.out.println("ResourceId"+c.getResourceId());
-                System.out.println("Kind"+c.getKind());
-                System.out.println("resuri"+c.getResourceUri());
-                System.out.println("token"+c.getToken());
-                System.out.println("expi"+c.getExpiration());
-                //System.out.println(c.getPayload());
+//                Channel channel = new Channel();
+//                channel.setId(UUID.randomUUID().toString());
+//                channel.setType("web_hook");
+//                channel.setAddress("https://ggledrvsrvcaccnt.appspot.com/hello");
+//                System.out.println(" **channel Id"+channel.getId()+"paggtoken"+startpageToken);
+//             //   channel.setAddress(Config.PUSH_NOTIFICATION_ADDRESS);
+//                String accessToken="PP";
+//              //httpClient(channel.getId(),mService, accessToken);
+//
+//                Channel c = mService.changes().watch(startpageToken, channel).execute();
+//                System.out.println("ResourceId"+c.getResourceId());
+//                System.out.println("Kind"+c.getKind());
+//                System.out.println("resuri"+c.getResourceUri());
+//                System.out.println("token"+c.getToken());
+//                System.out.println("expi"+c.getExpiration());
+//                //System.out.println(c.getPayload());
                 //String pageToken1 = pageToken.getCurrPageToken();
               //  Drive.Changes.List request = mService.changes().list(startpageToken);
 

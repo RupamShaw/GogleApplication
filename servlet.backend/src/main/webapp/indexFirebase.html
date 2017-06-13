@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello, App Engine!</title>
+    <script src="https://www.gstatic.com/firebasejs/4.0.0/firebase.js">
+
+    <script src="https://www.gstatic.com/firebasejs/4.0.0/firebase-messaging.js">
+
+    </script>
+    <script>
+  function window_onload() { alert("Hello test"); }
+  </script>
+
+
+</head>
+<body onload="window_onload()" role="document" style="padding-top: 70px;">
+<!--<p id="demo">testing</p>-->
+
+<script>
+// Your Firebase Cloud Server API key
+var API_KEY = "AAAA6nN2BxI:APA91bHYotXML0siwL0Pm0LK5iXQ9Ik1kQtdB1ALbJrm5kseUk2zS5gJs6AMHVsX86exEE-JFsIF962YNY1yRyl3yFxGCyMBAH4OKwTn8Ff6vcd6vJMVXutNlP99X8AtOsW8_JIBkyEl";
+//var request = require('request');
+// Retrieve Firebase Messaging object.
+const messaging = firebase.messaging();
+//var firTkn=document.getElementById('demo');
+var firToken;
+//const name=document.getElementById('name');
+  //name.value="hello success";
+ //firTkn.innerText="changing";
+ var config = {
+    apiKey: "AIzaSyDKpX1gI7_MzdZ854u8UQ6HbS2BlNYSQpE",
+    authDomain: "ggledrvsrvcaccnt.firebaseapp.com",
+    databaseURL: "https://ggledrvsrvcaccnt.firebaseio.com",
+    projectId: "ggledrvsrvcaccnt",
+    storageBucket: "ggledrvsrvcaccnt.appspot.com",
+    messagingSenderId: "1006959462162"
+  };
+   //var conre="tst";
+  firebase.initializeApp(config);
+ //alert('hi');
+//  console.log("***********");  // "[DEFAULT]"
+   const db=firebase.database().ref().child("message");
+  //console.log("*****1111111111******"+db);  // "[DEFAULT]"
+//synobject changes
+function tokenCallback( token) {
+    alert('token ' + token );
+firToken=token;
+sendNotificationToDevice(token);
+}
+
+function sendNotificationToDevice(token) {
+
+  request({
+    url: 'https://fcm.googleapis.com/fcm/send',
+    method: 'POST',
+    headers: {
+      'Content-Type' :' application/json',
+      'Authorization': 'key='+API_KEY
+    },
+    body: JSON.stringify({
+      to : token,
+      notification: {
+        title: "testing tittle",
+        body:"Did it for message"
+      }
+
+    })
+  }, function(error, response, body) {
+    if (error) { console.error(error); }
+    else if (response.statusCode >= 400) {
+      console.error('HTTP Error: '+response.statusCode+' - '+response.statusMessage);
+    }
+    else {
+    console.log("wow  got success in response");
+      onSuccess();
+    }
+  });
+
+}
+db.on('value',snap =>{
+var conre=snap.val();
+//document.getElementById("demo").innerHTML = conre;
+//alert('conre ' + conre );
+tokenCallback(conre);
+//console.log("*****inside conre**"+conre);
+return conre;
+});
+//console.log("*******outsideconre **"+conre);
+//var temp=document.getElementById("demo").innerText;
+//console.log('temp'+temp);
+
+
+</script>
+</body>
+</html>

@@ -2,7 +2,12 @@ package com.example.JAG.myapplication.backend;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.extensions.appengine.auth.oauth2.AppIdentityCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.ChangeList;
 import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.FileList;
 import com.google.appengine.repackaged.com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 
 import java.io.IOException;
@@ -38,14 +43,86 @@ public class DriveSrvAccnt extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
-        Log.info("testing drvsrvcacct.get");
-        String name = req.getParameter("name");
+        Log.info("testing drvsrvcacct.doget");
+       // String name = req.getParameter("name");
 //        getHeadersInfo(req);
   //      getUserAgent(req);
+        watchResource("Forms");
+        watchResource("Links");
 
+        //  watchAllResources();
+      //watchResource("NewsLetters");
+  //Drive drive=OAuthUtils.getDriveServiceP12();
+     /*     Log.info("getDriveServiceP12");
+        Credential credential=null;
+        try {
+            credential=getDelegateCredentialP12();
+        } catch (KeyStoreException e) {
+            e.printStackTrace();
+        } catch (UnrecoverableKeyException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        try{
+            HttpTransport httpTransport = new NetHttpTransport();
+
+            Log.info("2");
+           Drive service = new Drive.Builder(httpTransport, OAuthUtils.JSON_FACTORY, null).setApplicationName("MyAppName")
+                    .setHttpRequestInitializer(credential).build();
+            Log.info(" 3before filelist in OauthUtils.getDriveServiceP12");
+            FileList result = null;
+
+            result = service.files().list()
+                    .setPageSize(10)
+                    .setFields("nextPageToken, files(id, name)")
+                    .execute();
+            Log.info("4");
+            List<File> files = result.getFiles();
+            if (files == null || files.size() == 0) {
+                Log.info("No files found.");
+            } else {
+                Log.info("Files:");
+                for (File file : files) {
+                    System.out.printf("%s (%s)\n", file.getName(), file.getId());
+                }
+            }
+            Log.info("5");
+            Drive.Changes.List request1 = service.changes().list("3420");
+            ChangeList changes = request1.execute();
+
+//            ChangeList changes = mService.changes().list(response.getStartPageToken()).execute();
+            Log.info("changes.getChanges after setFields 3411 kind response" + changes.getChanges().size() + " response ");
+            Log.info("changes.getKind" + changes.getKind() + "chg.nextpgt" + changes.getNextPageToken() + "ch.new" + changes.getNewStartPageToken() + " chn.getChg" + changes.getChanges());
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+*/
         resp.setContentType("text/plain");
         resp.getWriter().println("Please use the drivesrvcAcct to doget to this url");
     }
+    private void watchAllResources() throws IOException {
+       // String driveFolder = "NewsLetters";
+        watchResource("Forms");
+        watchResource("Links");
+        watchResource("NewsLetters");
+        watchResource("Notifications");
+        watchResource("Documents");
+        watchResource("Notes");
+        watchResource("Timetables");
+        watchResource("PandC");
+        watchResource("Canteens");
+
+    }
+    private void watchResource(String driveFolder) throws IOException {
+        AppIdentityCredential appIdentityCredential = OAuthUtils.appenginesrvcAccntCredential();
+        Drive mService = OAuthUtils.getDriveServiceAppId(appIdentityCredential);
+        OAuthUtils.watchResourceByFolderId(mService,driveFolder);
+    }
+
     private Map<String, String> getHeadersInfo(HttpServletRequest request) {
 
         Map<String, String> map = new HashMap<String, String>();
@@ -73,13 +150,16 @@ public class DriveSrvAccnt extends HttpServlet {
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
         Log.info("testing drvsrvcacct.dopost");
-        String name = req.getParameter("name");
-    //    getHeadersInfo(req);
+        //String name = req.getParameter("name");
+        String driveFolder = "NewsLetters";
+        watchAllResources();
+//watchResource(driveFolder);
+        //    getHeadersInfo(req);
       //  getUserAgent(req);
         resp.setContentType("text/plain");
-        if (name == null) {
-            resp.getWriter().println("Please enter a name");
-        }
+       // if (name == null) {
+         //   resp.getWriter().println("Please enter a name");
+        //}
 //Delegate domain-wide authority
        /* Credential credential=null;
         try {
@@ -91,47 +171,9 @@ public class DriveSrvAccnt extends HttpServlet {
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }*/
-        AppIdentityCredential appIdentityCredential=OAuthUtils.appenginesrvcAccntCredential();
-        getDriveServiceAppId(appIdentityCredential);
-        List<File> files=null;
-        try {
-            files = OAuthUtils.getDataFromApiAppId(appIdentityCredential);
-            Log.info("in dopost 7 in driveservlet");
-            name="NewsLetters";
-            Log.info(" Name "+name);
-            OAuthUtils.listFileinFolderforAppId(appIdentityCredential, name );
-            req.setAttribute("Files" , OAuthUtils.stringBuilder( files));
-            //listFileinFolder(credential, name );
-            OAuthUtils.pollingChangesinDriveAppId( appIdentityCredential );
-            RequestDispatcher rd = req.getRequestDispatcher(OAuthUtils.MAIN_SERVLET_PATH);
-            rd.forward(req, resp);
-            // New location to be redirected
-       //     String site = new String("https://ggledrvsrvcaccnt.appspot.com/hellotest");
-            Log.info("drvsrvcacc.dopost() before site /hellotest getting ");
-            //resp.setStatus(resp.SC_MOVED_TEMPORARILY);
-         //   resp.setStatus(resp.SC_OK);
-           // resp.setHeader("Location", site);
-          //  C:\Users\JAG\Downloads\appengine-java-sdk-1.9.42\appengine-java-sdk-1.9.42\bin> appcfg rollback C:\Users\JAG\AndroidStudioProjects\GogleApplication\servlet.backend\src\main\webapp
-
-        }catch(IOException e){
-            Log.info(e.getMessage());
-            Log.severe("Invalid Credentials for accesing drive in DriveServlet.doPost()");
-            resp.getWriter().println(" Invalid Credentials for accesing drive");
-
-        } catch (Exception e) {
-        Log.info(e.getMessage());
-        Log.severe("in exception DriveServlet.doPost()");
-        e.printStackTrace();
-    }
-        try {
-           // getDriveServiceP12();
-           // getDriveServiceApiKey();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        //getDriveService(credential);
-
-        resp.getWriter().println("Hello from working backend " + name);
+      //  String driveFolder = "NewsLetters";
+       // watchResource(driveFolder);
+       // resp.getWriter().println("Hello from DrivesrvcAcnt.dopost()" + name);
+        resp.getWriter().println("Hello from DrivesrvcAcnt.dopost()" );
     }
 }

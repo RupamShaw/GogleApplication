@@ -35,6 +35,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.StandardCopyOption;
@@ -53,13 +54,15 @@ import java.util.UUID;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Created by Dell on 3/08/2016.
  */
 public class OAuthUtils {
 
-    private static final String CLIENT_SECRETS_FILE_PATH = "/GoogleDriveSrvcAcnt-af2a69a7b479.json";
+ //   private static final String CLIENT_SECRETS_FILE_PATH = "/GoogleDriveSrvcAcnt-af2a69a7b479.json";
+    private static final String CLIENT_SECRETS_FILE_PATH = "/client_secret6.json";
     private static final String P12_FILE_PATH = "/GoogleDriveSrvcAcnt-4d4a3f9e9059.p12";
     static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
     static final UrlFetchTransport HTTP_TRANSPORT_REQUEST = new UrlFetchTransport();
@@ -72,8 +75,47 @@ public class OAuthUtils {
     private static GoogleClientSecrets clientSecrets = null;
     private static final Logger Log = Logger.getLogger(OAuthUtils.class.getName());
     static String emailAddress = "ggledrvsrvcaccn@appspot.gserviceaccount.com";
+  //  static String emailAddress = "perfect-entry-134823@appspot.gserviceaccount.com";
 
     private OAuthUtils() {
+    }
+
+    public static String driveMessage(HttpServletResponse resp, String driveFolder) {
+        AppIdentityCredential appIdentityCredential = OAuthUtils.appenginesrvcAccntCredential();
+        //getDriveServiceAppId(appIdentityCredential);
+        List<File> files = null;
+        String fileName = "";
+        try {
+            // files = OAuthUtils.getDataFromApiAppId(appIdentityCredential);
+            //Log.info("in dopost 7 in driveservlet");
+
+            // Log.info(" driveFolder "+driveFolder);
+            //files = OAuthUtils.listFileinFolderWatchResourceAppId(appIdentityCredential, driveFolder);
+            Drive mService = OAuthUtils.getDriveServiceAppId(appIdentityCredential);
+
+            String dbToken = "3372"; //getdbToken from database
+//
+//            String    driveFolderID = "0B5nxCVMvw6oHaGNXZnlIb1I1OEE";//NewsLetters
+//            Drive.Changes.List request = mService.changes().list(driveFolderID);//pagetoken instead of driveFolderID
+//            ChangeList changes = request.execute();
+            String driveFolderId = getFolderId(driveFolder);
+            List<File> listFilesinFolder = printFile(mService, driveFolderId);
+            Object[] pageTokenFileIdfileNameNewFile = detectChangesListinDrive(mService, dbToken, listFilesinFolder);
+            fileName = (String) pageTokenFileIdfileNameNewFile[2];
+            System.out.println("in OAuthUtils.dirvemessage() fileName" + fileName);
+//store object[] values in database
+
+        } catch (Exception e) {
+            Log.severe("Invalid Credentials for accesing drive in DriveServlet.doPost()");
+            try {
+                resp.getWriter().println(" Invalid Credentials for accesing drive");
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+            Log.severe("in exception DriveServlet.doPost()");
+            e.printStackTrace();
+        }
+        return fileName;
     }
 
     private static GoogleClientSecrets getClientSecrets() throws IOException {
@@ -81,20 +123,20 @@ public class OAuthUtils {
             InputStream jsonStream = OAuthUtils.class.getResourceAsStream(CLIENT_SECRETS_FILE_PATH);
             InputStreamReader jsonReader = new InputStreamReader(jsonStream);
             clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, jsonReader);
-        Log.info("clientSecrets"+clientSecrets);
+            Log.info("clientSecrets" + clientSecrets);
         }
         return clientSecrets;
     }
 
-public static AppIdentityCredential appenginesrvcAccntCredential(){
-   // Credential credential=null;
-  Log.info("before AppIdentityCredential ");
-    AppIdentityCredential credential =
-            new AppIdentityCredential(Collections.singleton(DriveScopes.DRIVE_METADATA));
-    Log.info("after AppIdentityCredential ");
+    public static AppIdentityCredential appenginesrvcAccntCredential() {
+        // Credential credential=null;
+//        Log.info("before AppIdentityCredential ");
+        AppIdentityCredential credential =
+                new AppIdentityCredential(Collections.singleton(DriveScopes.DRIVE_METADATA));
+        //      Log.info("after AppIdentityCredential ");
 
-    return credential;
-}
+        return credential;
+    }
 
     public static Credential getDelegateCredentialP12() throws KeyStoreException, UnrecoverableKeyException, NoSuchAlgorithmException {
         //Delegate domain-wide authority  pwd notasecret
@@ -123,6 +165,8 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
 
         serviceAccountPrivateKey = (PrivateKey) keystore.getKey("privatekey", "notasecret".toCharArray());
 
+        HttpTransport httpTransport = new NetHttpTransport();
+        List<String> scopes = Arrays.asList(DriveScopes.DRIVE);
 
         Credential credential = new GoogleCredential.Builder()
                 .setTransport(HTTP_TRANSPORT)
@@ -130,26 +174,70 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
                 .setServiceAccountId(emailAddress)
                 //  .setServiceAccountPrivateKeyFromP12File(new File("/GoogleDriveSrvcAcnt-4d4a3f9e9059.p12"))
                 .setServiceAccountPrivateKey(serviceAccountPrivateKey)
-                .setServiceAccountScopes(PERMISSION_SCOPES)
+                .setServiceAccountScopes(scopes)
                 .setServiceAccountUser("rupamproject16@gmail.com")
                 .build();
+        Log.info("2");
+       Drive mservice = new Drive.Builder(httpTransport, JSON_FACTORY, null).setApplicationName("MyAppName")
+                .setHttpRequestInitializer(credential).build();
+        Log.info(" 3");
+        FileList result = null;
+
+        try {
+            result = mservice.files().list()
+                    .setPageSize(10)
+                    .setFields("nextPageToken, files(id, name)")
+                    .execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Log.info("4");
+        List<File> files = result.getFiles();
+        if (files == null || files.size() == 0) {
+            Log.info("No files found.");
+        } else {
+            Log.info("Files:");
+            for (File file : files) {
+                System.out.printf("%s (%s)\n", file.getName(), file.getId());
+            }
+        }
+        Log.info("5");
+        Drive.Changes.List request1 = null;
+        try {
+            request1 = mservice.changes().list("3420");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        ChangeList changes = null;
+        try {
+            changes = request1.execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+//            ChangeList changes = mService.changes().list(response.getStartPageToken()).execute();
+        Log.info("changes.getChanges after setFields 3411 kind response" + changes.getChanges().size() + " response ");
+        Log.info("changes.getKind" + changes.getKind() + "chg.nextpgt" + changes.getNextPageToken() + "ch.new" + changes.getNewStartPageToken() + " chn.getChg" + changes.getChanges());
+
+
         return credential;
     }
+
     public static Drive getDriveServiceP12() {
         HttpTransport httpTransport = new NetHttpTransport();
-       // GsonFactory jsonFactory = new GsonFactory();
+        // GsonFactory jsonFactory = new GsonFactory();
         GoogleCredential credential;
         Drive service = null;
         List<String> scopes = Arrays.asList(DriveScopes.DRIVE);
         try {
 
-            InputStream inputStreamj = OAuthUtils.class.getResourceAsStream(CLIENT_SECRETS_FILE_PATH);
-           // File targetFile = new File("//targetFile.tmp");
+          //  InputStream inputStreamj = OAuthUtils.class.getResourceAsStream(CLIENT_SECRETS_FILE_PATH);
+            // File targetFile = new File("//targetFile.tmp");
 //java.nio.file.Files.copy(inputStreamj,targetFile.,StandardCopyOption.REPLACE_EXISTING);
 //            GoogleCredential credential = null;
             //     AppIdentityCredential credential =  new AppIdentityCredential(CalendarScopes.CALENDAR_READONLY);
             //credential = GoogleCredential.fromStream(inputStreamj, httpTransport, JSON_FACTORY)
-                //    .createScoped(PERMISSION_SCOPES);
+            //    .createScoped(PERMISSION_SCOPES);
 
             Log.info("1");
             credential = new GoogleCredential.Builder()
@@ -181,6 +269,13 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
                 }
             }
             Log.info("5");
+            Drive.Changes.List request1 = service.changes().list("3420");
+            ChangeList changes = request1.execute();
+
+//            ChangeList changes = mService.changes().list(response.getStartPageToken()).execute();
+            Log.info("changes.getChanges after setFields 3411 kind response" + changes.getChanges().size() + " response ");
+            Log.info("changes.getKind" + changes.getKind() + "chg.nextpgt" + changes.getNextPageToken() + "ch.new" + changes.getNewStartPageToken() + " chn.getChg" + changes.getChanges());
+
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -220,27 +315,41 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
         requestUrl.setRawPath(AUTH_CALLBACK_SERVLET_PATH);
         return requestUrl.build();
     }
+
     static Drive getDriveServiceAppId(AppIdentityCredential credential) throws IOException {
         //  Credential credential = authorize( in,file);
         Drive drive = null;
-         try {
-             Log.info("before drive srvc ");
+        try {
+//            Log.info("before drive srvc ");
 
-             drive = new Drive.Builder(
-                     HTTP_TRANSPORT_REQUEST, JSON_FACTORY, credential)
-                     .setApplicationName(APPLICATION_NAME)
-                     .build();
-             Log.info("after drv srvc ");
+            // String API_KEY = "AIzaSyDKpX1gI7_MzdZ854u8UQ6HbS2BlNYSQpE";//browser
 
-         }catch (Exception e){
-             Log.severe("getDriveServiceAppId() service " + e.toString());
-             StringWriter sw = new StringWriter();
-             e.printStackTrace(new PrintWriter(sw));
-             String exceptionAsString = sw.toString();
-             Log.severe("******get service" + exceptionAsString);
-             e.printStackTrace();
-         throw new IOException("not getting service" );
-         }
+            String API_KEY = "AIzaSyDa3f52rCY9dllUPrI1NsQhG_8LlEVApeo";//browser
+            GoogleClientRequestInitializer keyInitializer =
+                    new CommonGoogleClientRequestInitializer(API_KEY);
+            drive = new Drive.Builder(
+                    HTTP_TRANSPORT_REQUEST, JSON_FACTORY, credential)
+                    .setApplicationName(APPLICATION_NAME)
+                    .setGoogleClientRequestInitializer(keyInitializer)
+                    .build();
+                      Log.info("after drv srvc ");
+            Drive.Changes.List request1 = drive.changes().list("3420");
+
+                        ChangeList changes = request1.execute();
+
+//            ChangeList changes = mService.changes().list(response.getStartPageToken()).execute();
+            Log.info("changes.getChanges after setFields 3411 kind response" + changes.getChanges().size() + " response ");
+            Log.info("changes.getKind" + changes.getKind() + "chg.nextpgt" + changes.getNextPageToken() + "ch.new" + changes.getNewStartPageToken() + " chn.getChg" + changes.getChanges());
+
+        } catch (Exception e) {
+            Log.severe("getDriveServiceAppId() service " + e.toString());
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            String exceptionAsString = sw.toString();
+            Log.severe("******get service" + exceptionAsString);
+            e.printStackTrace();
+            throw new IOException("not getting service");
+        }
 
              FileList result = null;
         try {
@@ -270,10 +379,12 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
                 System.out.printf("%s (%s)\n", file.getName(), file.getId());
             }
         }
+
         return drive;
     }
-    static Drive getDriveServiceApiKey() throws IOException ,GeneralSecurityException,
-      IOException, URISyntaxException {
+
+    static Drive getDriveServiceApiKey() throws IOException, GeneralSecurityException,
+            IOException, URISyntaxException {
         //String API_KEY = "tAIzaSyAaEqzoUjL8xYz6Ds8BQ1LVTA2um1o8T7E";//server
         String API_KEY = "AIzaSyDKpX1gI7_MzdZ854u8UQ6HbS2BlNYSQpE";//browser
 
@@ -312,6 +423,14 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
                 }
             }
             Log.info("5");
+//            Drive.Changes.List request1 = service.changes().list("3420");
+  //          ChangeList changes = request1.execute();
+
+//            ChangeList changes = mService.changes().list(response.getStartPageToken()).execute();
+    //        Log.info("changes.getChanges after setFields 3411 kind response" + changes.getChanges().size() + " response ");
+      //      Log.info("changes.getKind" + changes.getKind() + "chg.nextpgt" + changes.getNextPageToken() + "ch.new" + changes.getNewStartPageToken() + " chn.getChg" + changes.getChanges());
+
+
         } catch (IOException e) {
             Log.severe("for filelist+e" + e.toString());
             StringWriter sw = new StringWriter();
@@ -326,6 +445,7 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
 
         return service;
     }
+
     static Drive getDriveService(Credential credential) throws IOException {
         //  Credential credential = authorize( in,file);
         Drive drive = null;
@@ -341,6 +461,15 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
                     .setPageSize(10)
                     .setFields("nextPageToken, files(id, name)")
                     .execute();
+
+            //Drive.Changes.List request1 = drive.changes().list("3420");
+            //ChangeList changes = request1.execute();
+
+//            ChangeList changes = mService.changes().list(response.getStartPageToken()).execute();
+            //Log.info("changes.getChanges after setFields 3411 kind response" + changes.getChanges().size() + " response ");
+            //Log.info("changes.getKind" + changes.getKind() + "chg.nextpgt" + changes.getNextPageToken() + "ch.new" + changes.getNewStartPageToken() + " chn.getChg" + changes.getChanges());
+
+
         } catch (IOException e) {
             Log.severe("for filelist+e" + e.toString());
             StringWriter sw = new StringWriter();
@@ -401,7 +530,8 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
             StringBuilder sb = new StringBuilder();
             for (File file : files) {
                 sb.append("name " + file.getName() + " id " + file.getId() + " modifiedTime " + file.getModifiedTime());
-                System.out.printf("******Filename %s (%s) %s \n", file.getName(), file.getId(), file.getModifiedTime());
+                System.out.printf("******Filename %s (%s) %s  %s \n", file.getName(), file.getId(), file.getModifiedTime(), file.getCreatedTime());
+                // 2017-04-25T09:12:55.964Z
                 //  downloadPDF( service,file);
             }
             filenameid = sb.toString();
@@ -483,46 +613,27 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
             Drive mService = OAuthUtils.getDriveService(context);
             String driveFolderID = "";
 
-            if (name.equals("Notifications"))
-                driveFolderID = "0B5nxCVMvw6oHUmJwdWs2ejdUbUU";//https://drive.google.com/open?id=0B5nxCVMvw6oHUmJwdWs2ejdUbUU
-            if (name.equals("NewsLetters"))
-                driveFolderID = "0B5nxCVMvw6oHaGNXZnlIb1I1OEE";//https://drive.google.com/open?id=0B5nxCVMvw6oHaGNXZnlIb1I1OEE
-            if (name.equals("Documents"))
-                driveFolderID = "0B5nxCVMvw6oHS3BpckpFSng3YXc";//https://drive.google.com/open?id=0B5nxCVMvw6oHS3BpckpFSng3YXc
-            if (name.equals("Notes"))
-                driveFolderID = "0B5nxCVMvw6oHeDJwTTE2R1doMUE";//https://drive.google.com/open?id=0B5nxCVMvw6oHeDJwTTE2R1doMUE
-            if (name.equals("Timetables"))
-                driveFolderID = "0B5nxCVMvw6oHNnFvNGpTRzd2SWM";//https://drive.google.com/open?id=0B5nxCVMvw6oHNnFvNGpTRzd2SWM
-            if (name.equals("PandC"))
-                driveFolderID = "0B5nxCVMvw6oHQ1lxLXZ3d25yZTA";//https://drive.google.com/open?id=0B5nxCVMvw6oHQ1lxLXZ3d25yZTA
-            if (name.equals("Canteens"))
-                driveFolderID = "0B5nxCVMvw6oHVjJfT1dtVEtvUmc";//https://drive.google.com/open?id=0B5nxCVMvw6oHVjJfT1dtVEtvUmc
-            if (name.equals("Links"))
-                driveFolderID = "0B5nxCVMvw6oHbkM0X0Z6N2dJRzg";//https://drive.google.com/open?id=0B5nxCVMvw6oHbkM0X0Z6N2dJRzg
-            if (name.equals("Forms"))
-                driveFolderID = "0B5nxCVMvw6oHcjRiSmRobWdJT3M";//https://drive.google.com/open?id=0B5nxCVMvw6oHcjRiSmRobWdJT3M
+            driveFolderID = getFolderId(name);
 //file id is 16UxG7gjTt4l4bMkSQiTXavr7v1iCD0h3aS9Fp_XushY for contact response
             lstfile = OAuthUtils.printFile(mService, driveFolderID);
 
-
+/*
             // Drive.Changes.List request = mService.changes().list(driveFolderID);//pagetoken instead of driveFolderID
-            //ChangeList changes = request.execute();
-            StartPageToken pageToken = mService.changes().getStartPageToken().execute();
-            //     String pageToken="hh";
-            String startpageToken = pageToken.getStartPageToken();
-            Log.info("startpageToken" + startpageToken);
-            //  String pageToken="hh";
-//                StartPageToken pageToken = drive.changes().getStartPageToken().execute();
-            Drive.Changes.List request1 = mService.changes().list(startpageToken);
-            ChangeList changes1 = request1.execute();
+            //String startpageToken = detectChangesinDrive(mService,dbToken);
+
+            //   Log.info(changes1.getChanges().add());
             Channel channel = new Channel();
             channel.setId(UUID.randomUUID().toString());
             channel.setType("web_hook");
             channel.setAddress("https://ggledrvsrvcaccnt.appspot.com/hello");
-            Log.info(" **channel Id " + channel.getId() + " paggtoken" + startpageToken);
+            Log.info(" **channel Id " + channel.getId() );
+            //+ " paggtoken" + startpageToken);
             //   channel.setAddress(Config.PUSH_NOTIFICATION_ADDRESS);
             String accessToken = "PP";
             //httpClient(channel.getId(),mService, accessToken);
+            StartPageToken starpageTokenchg = mService.changes().getStartPageToken().execute();
+            //     String pageToken="hh";
+            String startpageToken = starpageTokenchg.getStartPageToken();
 
             Channel c = mService.changes().watch(startpageToken, channel).execute();
             Log.info("ResourceId" + c.getResourceId());
@@ -541,8 +652,9 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
             //Log.info("*********filechg"+filechaneg);
             //String pageToken = channelInfo.getCurrPageToken();
             //List<Change> changes = service.changes().list(pageToken).execute().getChanges();
-            // Channel c = mService.changes().watch(channel).execute();//pagetoken to set*/
+            // Channel c = mService.changes().watch(channel).execute();//pagetoken to set
             //Channel c = mService.changes().watch(pageToken,channel).execute();//pagetoken to set*/
+
         } catch (Exception e) {
             Log.info("exception in OAuthUtils.listFileinFolder()");
 
@@ -550,7 +662,65 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
         }
         return lstfile;
     }
-    public static List<File> listFileinFolderforAppId(AppIdentityCredential context, String name) {
+
+    private static Object[] detectChangesListinDrive(Drive mService, String savedStartPageToken, List<File> listFilesinfolder) throws IOException {
+        //ChangeList changes = request.execute();
+        //StartPageToken starpageToken = mService.changes().getStartPageToken().execute();
+        //     String pageToken="hh";
+        //String savedStartPageToken = starpageToken.getStartPageToken();
+        Log.info("savedStartPageToken" + savedStartPageToken);
+        String pageToken = savedStartPageToken;
+        //  String pageToken="hh";
+//                StartPageToken pageToken = drive.changes().getStartPageToken().execute();
+        boolean newfile = false;
+        String fileId = "";
+        String fileName = "";
+        Log.info("pagatoken" + pageToken);
+        StartPageToken response = mService.changes()
+                .getStartPageToken().execute();
+        String resstrng = response.toString();
+        Log.info("resstrng" + resstrng + "response.getStartPageToken()" + response.getStartPageToken());
+        while (pageToken != null) {
+            //  while (response != null) {
+            Drive.Changes.List request1 = mService.changes().list("3420");
+            ChangeList changes = request1.execute();
+
+//            ChangeList changes = mService.changes().list(response.getStartPageToken()).execute();
+            Log.info("changes.getChanges after setFields 3411 kind response" + changes.getChanges().size() + " response ");
+            Log.info("changes.getKind" + changes.getKind() + "chg.nextpgt" + changes.getNextPageToken() + "ch.new" + changes.getNewStartPageToken() + " chn.getChg" + changes.getChanges());
+            for (Change change : changes.getChanges()) {
+                // Process change
+                System.out.println("Change found for file: " + change.getFileId());
+
+                for (int i = 0; i < listFilesinfolder.size(); i++) {
+                    System.out.println("listFilesinfolder.get(i).getId()" + listFilesinfolder.get(i).getId());
+                    System.out.println("change.getFileId()" + change.getFileId());
+
+                    if ((change.getFileId().equals(listFilesinfolder.get(i).getId()))) {
+                        newfile = true;
+                        fileId = listFilesinfolder.get(i).getId();
+                        fileName = listFilesinfolder.get(i).getName();
+                        break;
+
+                    }
+
+                }
+                if (newfile) break;
+            }
+            if (changes.getNewStartPageToken() != null) {
+                // Last page, save this token for the next polling interval
+                savedStartPageToken = changes.getNewStartPageToken();
+            }
+            pageToken = changes.getNextPageToken();
+            if (newfile) break;
+        }
+        System.out.println("pagetoken" + pageToken);
+        Object arr[];
+        arr = new Object[]{pageToken, fileId, fileName, newfile};
+        return arr;
+    }
+
+    public static List<File> listFileinFolderWatchResourceAppId(AppIdentityCredential context, String name) {
         Log.info("DriveServlet.listFileinFolderAppId ()");
         //  context = params[0].first;
         //name = params[0].second;
@@ -564,75 +734,161 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
             Drive mService = OAuthUtils.getDriveServiceAppId(context);
             String driveFolderID = "";
 
-            if (name.equals("Notifications"))
-                driveFolderID = "0B5nxCVMvw6oHUmJwdWs2ejdUbUU";//https://drive.google.com/open?id=0B5nxCVMvw6oHUmJwdWs2ejdUbUU
-            if (name.equals("NewsLetters"))
-                driveFolderID = "0B5nxCVMvw6oHaGNXZnlIb1I1OEE";//https://drive.google.com/open?id=0B5nxCVMvw6oHaGNXZnlIb1I1OEE
-            if (name.equals("Documents"))
-                driveFolderID = "0B5nxCVMvw6oHS3BpckpFSng3YXc";//https://drive.google.com/open?id=0B5nxCVMvw6oHS3BpckpFSng3YXc
-            if (name.equals("Notes"))
-                driveFolderID = "0B5nxCVMvw6oHeDJwTTE2R1doMUE";//https://drive.google.com/open?id=0B5nxCVMvw6oHeDJwTTE2R1doMUE
-            if (name.equals("Timetables"))
-                driveFolderID = "0B5nxCVMvw6oHNnFvNGpTRzd2SWM";//https://drive.google.com/open?id=0B5nxCVMvw6oHNnFvNGpTRzd2SWM
-            if (name.equals("PandC"))
-                driveFolderID = "0B5nxCVMvw6oHQ1lxLXZ3d25yZTA";//https://drive.google.com/open?id=0B5nxCVMvw6oHQ1lxLXZ3d25yZTA
-            if (name.equals("Canteens"))
-                driveFolderID = "0B5nxCVMvw6oHVjJfT1dtVEtvUmc";//https://drive.google.com/open?id=0B5nxCVMvw6oHVjJfT1dtVEtvUmc
-            if (name.equals("Links"))
-                driveFolderID = "0B5nxCVMvw6oHbkM0X0Z6N2dJRzg";//https://drive.google.com/open?id=0B5nxCVMvw6oHbkM0X0Z6N2dJRzg
-            if (name.equals("Forms"))
-                driveFolderID = "0B5nxCVMvw6oHcjRiSmRobWdJT3M";//https://drive.google.com/open?id=0B5nxCVMvw6oHcjRiSmRobWdJT3M
-//file id is 16UxG7gjTt4l4bMkSQiTXavr7v1iCD0h3aS9Fp_XushY for contact response
+            driveFolderID = getFolderId(name);
             lstfile = OAuthUtils.printFile(mService, driveFolderID);
+            watchResourceByFolderId(mService, driveFolderID);
 
 
-            // Drive.Changes.List request = mService.changes().list(driveFolderID);//pagetoken instead of driveFolderID
-            //ChangeList changes = request.execute();
-            StartPageToken pageToken = mService.changes().getStartPageToken().execute();
-            //     String pageToken="hh";
-            String startpageToken = pageToken.getStartPageToken();
-            Log.info("startpageToken" + startpageToken);
-            //  String pageToken="hh";
-//                StartPageToken pageToken = drive.changes().getStartPageToken().execute();
-            Drive.Changes.List request1 = mService.changes().list(startpageToken);
-            ChangeList changes1 = request1.execute();
-            Channel channel = new Channel();
-            channel.setId(UUID.randomUUID().toString());
-            channel.setType("web_hook");
-            channel.setAddress("https://ggledrvsrvcaccnt.appspot.com/hello");
-            Log.info(" **channel Id " + channel.getId() + " paggtoken" + startpageToken);
-            //   channel.setAddress(Config.PUSH_NOTIFICATION_ADDRESS);
-            String accessToken = "PP";
-            //httpClient(channel.getId(),mService, accessToken);
-            Drive.Files tmp = mService.files();
-            Channel c = tmp.watch(driveFolderID, channel).execute();
-           // Channel c = mService.changes().watch(startpageToken, channel).execute();
-            Log.info("Id" + c.getId());
-            Log.info("ResourceId" + c.getResourceId());
-            Log.info("Kind" + c.getKind());
-            Log.info("resuri" + c.getResourceUri());
-            Log.info("token" + c.getToken());
-            Log.info("expiration " + c.getExpiration());
-            Log.info("type " + c.getType());
-            Log.info("payload"+c.getPayload());
-            //String pageToken1 = pageToken.getCurrPageToken();
-            //  Drive.Changes.List request = mService.changes().list(startpageToken);
-
-            //ChangeList changes = request.execute();
-
-            //Change chg= changes.getChanges().get(0);
-            //String filechaneg=chg.getFile().getDescription();
-            //Log.info("*********filechg"+filechaneg);
-            //String pageToken = channelInfo.getCurrPageToken();
-            //List<Change> changes = service.changes().list(pageToken).execute().getChanges();
-            // Channel c = mService.changes().watch(channel).execute();//pagetoken to set*/
-            //Channel c = mService.changes().watch(pageToken,channel).execute();//pagetoken to set*/
         } catch (Exception e) {
             Log.info("exception in OAuthUtils.listFileinFolderAppId()");
 
             return null;
         }
         return lstfile;
+    }
+
+    private static String getFolderId(String name) {
+        String driveFolderID = null;//
+        if (name.equals("Notifications"))
+            driveFolderID = "0B5nxCVMvw6oHUmJwdWs2ejdUbUU";//https://drive.google.com/open?id=0B5nxCVMvw6oHUmJwdWs2ejdUbUU
+        if (name.equals("NewsLetters"))//0B5nxCVMvw6oHaGNXZnlIb1I1OEE
+            driveFolderID = "0B5nxCVMvw6oHaGNXZnlIb1I1OEE";//https://drive.google.com/open?id=0B5nxCVMvw6oHaGNXZnlIb1I1OEE
+        if (name.equals("Documents"))
+            driveFolderID = "0B5nxCVMvw6oHS3BpckpFSng3YXc";//https://drive.google.com/open?id=0B5nxCVMvw6oHS3BpckpFSng3YXc
+        if (name.equals("Notes"))
+            driveFolderID = "0B5nxCVMvw6oHeDJwTTE2R1doMUE";//https://drive.google.com/open?id=0B5nxCVMvw6oHeDJwTTE2R1doMUE
+        if (name.equals("Timetables"))
+            driveFolderID = "0B5nxCVMvw6oHNnFvNGpTRzd2SWM";//https://drive.google.com/open?id=0B5nxCVMvw6oHNnFvNGpTRzd2SWM
+        if (name.equals("PandC"))
+            driveFolderID = "0B5nxCVMvw6oHQ1lxLXZ3d25yZTA";//https://drive.google.com/open?id=0B5nxCVMvw6oHQ1lxLXZ3d25yZTA
+        if (name.equals("Canteens"))
+            driveFolderID = "0B5nxCVMvw6oHVjJfT1dtVEtvUmc";//https://drive.google.com/open?id=0B5nxCVMvw6oHVjJfT1dtVEtvUmc
+        if (name.equals("Links"))
+            driveFolderID = "0B5nxCVMvw6oHbkM0X0Z6N2dJRzg";//https://drive.google.com/open?id=0B5nxCVMvw6oHbkM0X0Z6N2dJRzg
+        if (name.equals("Forms"))
+            driveFolderID = "0B5nxCVMvw6oHcjRiSmRobWdJT3M";//https://drive.google.com/open?id=0B5nxCVMvw6oHcjRiSmRobWdJT3M
+//file id is 16UxG7gjTt4l4bMkSQiTXavr7v1iCD0h3aS9Fp_XushY for contact response
+        return driveFolderID;
+    }
+
+    private static String getFolderName(String driveFolderId) {
+        String name = null;
+        if (driveFolderId.equals("0B5nxCVMvw6oHUmJwdWs2ejdUbUU"))//https://drive.google.com/open?id=0B5nxCVMvw6oHUmJwdWs2ejdUbUU
+            name = "Notifications";
+
+        if (driveFolderId.equals("0B5nxCVMvw6oHaGNXZnlIb1I1OEE"))//https://drive.google.com/open?id=0B5nxCVMvw6oHaGNXZnlIb1I1OEE
+            name = "NewsLetters";
+
+        if (driveFolderId.equals("0B5nxCVMvw6oHS3BpckpFSng3YXc"))//https://drive.google.com/open?id=0B5nxCVMvw6oHaGNXZnlIb1I1OEE
+            name = "Documents";
+
+        if (driveFolderId.equals("0B5nxCVMvw6oHeDJwTTE2R1doMUE"))//https://drive.google.com/open?id=0B5nxCVMvw6oHaGNXZnlIb1I1OEE
+            name = "Notes";
+
+        if (driveFolderId.equals("0B5nxCVMvw6oHNnFvNGpTRzd2SWM"))//https://drive.google.com/open?id=0B5nxCVMvw6oHaGNXZnlIb1I1OEE
+            name = "Timetables";
+        if (driveFolderId.equals("0B5nxCVMvw6oHbkM0X0Z6N2dJRzg"))//https://drive.google.com/open?id=0B5nxCVMvw6oHaGNXZnlIb1I1OEE
+            name = "Links";
+        if (driveFolderId.equals("0B5nxCVMvw6oHcjRiSmRobWdJT3M"))//https://drive.google.com/open?id=0B5nxCVMvw6oHaGNXZnlIb1I1OEE
+            name = "Forms";
+        if (driveFolderId.equals("0B5nxCVMvw6oHVjJfT1dtVEtvUmc"))//https://drive.google.com/open?id=0B5nxCVMvw6oHaGNXZnlIb1I1OEE
+            name = "Canteens";
+        if (driveFolderId.equals("0B5nxCVMvw6oHQ1lxLXZ3d25yZTA"))//https://drive.google.com/open?id=0B5nxCVMvw6oHaGNXZnlIb1I1OEE
+            name = "PandC";
+
+        //file id is 16UxG7gjTt4l4bMkSQiTXavr7v1iCD0h3aS9Fp_XushY for contact response
+        return name;
+    }
+
+    public static String getFolderIdFromResourceURI(String sURL) {
+        URL aURL = null;
+        try {
+            aURL = new URL(sURL);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        String path = aURL.getPath();
+        System.out.println("path = " + aURL.getPath());
+        String[] folderIdPath = path.split("/");
+        String folderId = folderIdPath[folderIdPath.length - 1];
+        System.out.println("folderId" + folderId);
+        return getFolderName(folderId);
+    }
+
+    public static void watchResourceByFolderId(Drive mService, String driveFolder) throws IOException {
+        // Drive.Changes.List request = mService.changes().list(driveFolderID);//pagetoken instead of driveFolderID
+        //ChangeList changes = request.execute();
+        //  StartPageToken pageToken = mService.changes().getStartPageToken().execute();
+        //     String pageToken="hh";
+        //String startpageToken = pageToken.getStartPageToken();
+        //Log.info("startpageToken" + startpageToken);
+        //  String pageToken="hh";
+//                StartPageToken pageToken = drive.changes().getStartPageToken().execute();
+        /*Drive.Changes.List request1 = mService.changes().list(startpageToken);
+        ChangeList changes1 = request1.execute();*/
+        Channel channel = new Channel();
+        channel.setId(UUID.randomUUID().toString());
+        channel.setType("web_hook");
+        channel.setAddress("https://ggledrvsrvcaccnt.appspot.com/hello");
+        // Log.info(" **channel Id " + channel.getId());
+        //Log.info(" paggtoken" + startpageToken);
+        //   channel.setAddress(Config.PUSH_NOTIFICATION_ADDRESS);
+        String accessToken = "PP";
+        //httpClient(channel.getId(),mService, accessToken);
+
+        //Drive.Files tmp = mService.files();
+        String driveFolderID = getFolderId(driveFolder);
+        Channel c = mService.files().watch(driveFolderID, channel).execute();
+        // Channel c = mService.changes().watch(startpageToken, channel).execute();
+        Log.info("Id " + c.getId() +
+                " ResourceId " + c.getResourceId() +
+                " Kind " + c.getKind() +
+                " resuri " + c.getResourceUri() +
+                " token " + c.getToken() +
+                " expiration " + c.getExpiration() +
+                " type " + c.getType() +
+                " payload " + c.getPayload());
+        Drive.Changes.List request1 = mService.changes().list("3420");
+        ChangeList changes = request1.execute();
+
+//            ChangeList changes = mService.changes().list(response.getStartPageToken()).execute();
+        Log.info("changes.getChanges for 3420 kind response" + changes.getChanges().size() + " response ");
+        Log.info("changes.getKind" + changes.getKind() + "chg.nextpgt" + changes.getNextPageToken() + "ch.new" + changes.getNewStartPageToken() + " chn.getChg" + changes.getChanges());
+
+
+
+        //String pageToken1 = pageToken.getCurrPageToken();
+        //  Drive.Changes.List request = mService.changes().list(startpageToken);
+
+        //ChangeList changes = request.execute();
+
+        //Change chg= changes.getChanges().get(0);
+        //String filechaneg=chg.getFile().getDescription();
+        //Log.info("*********filechg"+filechaneg);
+        //String pageToken = channelInfo.getCurrPageToken();
+        //List<Change> changes = service.changes().list(pageToken).execute().getChanges();
+        // Channel c = mService.changes().watch(channel).execute();//pagetoken to set*/
+        //Channel c = mService.changes().watch(pageToken,channel).execute();//pagetoken to set*/
+    }
+
+    /**
+     * Stop watching for changes to a resource.
+     *
+     * @param service    Drive API service instance.
+     * @param channelId  ID of the channel to stop watching.
+     * @param resourceId Resource ID of the channel to stop watching.
+     */
+    public static void stopChannel(Drive service, String channelId,
+                                   String resourceId, String resURI) {
+        Channel channel = new Channel();
+        channel.setId(channelId);
+        channel.setResourceId(resourceId);
+        channel.setResourceUri(resURI);
+        try {
+            service.channels().stop(channel).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void pollingChangesinDrive(Credential credential) {
@@ -654,6 +910,7 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
         }
 
     }
+
     public static void pollingChangesinDriveAppId(AppIdentityCredential credential) {
         StartPageToken response = null;
         try {
@@ -673,6 +930,7 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
         }
 
     }
+
     static void retreivepollchangesAppId(String savedStartPageToken, AppIdentityCredential credential) {
         try {
             Log.info("retreivepollchangesAppId");
@@ -682,7 +940,7 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
             // Begin with our last saved start token for this user or the
 // current token from getStartPageToken()
             String pageToken = savedStartPageToken;
-            Log.info("pageToken "+pageToken);
+            Log.info("pageToken " + pageToken);
             while (pageToken != null) {
                 ChangeList changes = driveService.changes().list(pageToken)
                         .execute();
@@ -703,7 +961,7 @@ public static AppIdentityCredential appenginesrvcAccntCredential(){
                     }
                     },*/
                     Log.info("Change found for file: " + change.getFileId());
-                    Log.info("Change found for file id: " + change.getFile().getId()+" filename "+change.getFile().getName());
+                    Log.info("Change found for file id: " + change.getFile().getId() + " filename " + change.getFile().getName());
                 }
                 if (changes.getNewStartPageToken() != null) {
                     // Last page, save this token for the next polling interval

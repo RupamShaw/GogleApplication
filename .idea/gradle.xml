@@ -11,8 +11,10 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/backend" />
+            <option value="$PROJECT_DIR$/backend.googleDrv" />
+            <option value="$PROJECT_DIR$/backendendpoint" />
             <option value="$PROJECT_DIR$/myapplication" />
+            <option value="$PROJECT_DIR$/servlet.backend" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

@@ -11,7 +11,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="ContactName"
-        android:textSize="20px" >
+        android:textSize="20px"
+        android:layout_alignBaseline="@+id/txtContactName"
+        android:layout_alignBottom="@+id/txtContactName"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="21dp">
 
     </TextView>
     <EditText
@@ -20,12 +24,19 @@
         android:layout_height="wrap_content"
         android:textSize="50px"
         android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:layout_toEndOf="@+id/radioSex" />
+        <!--android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+-->        />
     <RadioGroup
         android:id="@+id/radioSex"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/txtContactName">
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="38dp"
+        android:layout_marginTop="41dp"
+        android:layout_below="@id/ContactName">
 
         <RadioButton
             android:id="@+id/radioMale"
@@ -47,5 +58,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Send"
-        android:id="@+id/sendButton" />
+        android:id="@+id/sendButton"
+        android:layout_below="@+id/radioSex"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="38dp"
+        android:layout_marginTop="41dp" />
 </RelativeLayout>

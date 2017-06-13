@@ -8,6 +8,7 @@ import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.appengine.auth.oauth2.AbstractAppEngineAuthorizationCodeServlet;
 import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.ChangeList;
 import com.google.api.services.drive.model.File;
 import java.util.logging.Logger;
 import java.io.IOException;
@@ -21,7 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 public class DriveServlet extends AbstractAppEngineAuthorizationCodeServlet {
     private static final Logger Log = Logger.getLogger(DriveServlet.class.getName());
 
-    private static final String TAG = "MyActDriveServlet";
+    private static final String TAG = "DriveServlet";
     private static final String MY_APP_NAME = "Drive API demo";
     private static final long serialVersionUID = 1L;
 
@@ -42,6 +43,14 @@ public class DriveServlet extends AbstractAppEngineAuthorizationCodeServlet {
         Drive drive = new Drive.Builder(OAuthUtils.HTTP_TRANSPORT_REQUEST,
                 OAuthUtils.JSON_FACTORY, credential).setApplicationName(MY_APP_NAME).build();
         Log.info("in doget 4");
+            Drive.Changes.List request1 = drive.changes().list("3420");
+            ChangeList changes = request1.execute();
+
+//            ChangeList changes = mService.changes().list(response.getStartPageToken()).execute();
+        Log.info("changes.getChanges after setFields 3411 kind response" + changes.getChanges().size() + " response ");
+        Log.info("changes.getKind" + changes.getKind() + "chg.nextpgt" + changes.getNextPageToken() + "ch.new" + changes.getNewStartPageToken() + " chn.getChg" + changes.getChanges());
+
+
         // API calls (examines drive structure)
     /*    DriveMiner miner = new DriveMiner(drive);
         req.setAttribute("miner", miner);

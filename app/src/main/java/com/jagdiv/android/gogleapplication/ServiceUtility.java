@@ -56,8 +56,9 @@ public class ServiceUtility {
 
 
     //final List<String> SCOPES =                Arrays.asList(CalendarScopes.CALENDAR_READONLY );
-    String calendarscopes= CalendarScopes.CALENDAR_READONLY;
-    String drivescopes= DriveScopes.DRIVE;
+    String calendarscopes = CalendarScopes.CALENDAR_READONLY;
+    String drivescopes = DriveScopes.DRIVE;
+
     {
         try {
 
@@ -76,7 +77,7 @@ public class ServiceUtility {
      * @return an authorized Credential object.
      * @throws java.io.IOException
      */
-    public Credential authorize(Context ctx,String scopes ) throws IOException {
+    public Credential authorize(Context ctx, String scopes) throws IOException {
 
 
 //assets folder contains json
@@ -92,10 +93,10 @@ public class ServiceUtility {
     }
 
     public Calendar getCalendarService(Context ctx) {
-         com.google.api.services.calendar.Calendar mCalService = null;
+        com.google.api.services.calendar.Calendar mCalService = null;
         Credential credential = null;
         try {
-            credential = authorize(ctx,calendarscopes);
+            credential = authorize(ctx, calendarscopes);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -107,21 +108,25 @@ public class ServiceUtility {
         return mCalService;
 
     }
-    public Drive getDriveService(Context ctx)  {
-        Credential credential=null;
+
+
+
+    public Drive getDriveService(Context ctx) {
+        Credential credential = null;
         try {
-            credential = authorize(ctx,drivescopes);
+            credential = authorize(ctx, drivescopes);
+            // credential = authorizep12(ctx);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return new Drive.Builder(
                 HTTP_TRANSPORT, JSON_FACTORY, credential)
-                .setApplicationName(APPLICATION_NAME+"DriveNewsletter")
+                .setApplicationName(APPLICATION_NAME + "Google Drive Single Account Watch")
                 .build();
     }
 
-    public  Credential authorizeclientsecrets(Context ctx)  {
-        Credential credential =null;
+    public Credential authorizeclientsecrets(Context ctx) {
+        Credential credential = null;
         // Load client secrets.
    /*     InputStream in =
                 DriveQuickstart.class.getResourceAsStream("/client_secret.json");
@@ -139,19 +144,19 @@ public class ServiceUtility {
         return credential;
     }
 
-    public  Credential authorizep12(Context ctx) throws IOException {
-    // setServiceAccountId(IRingeeConstants.SERVICE_ACCOUNT_EMAIL)
+    public Credential authorizep12(Context ctx) throws IOException {
+        // setServiceAccountId(IRingeeConstants.SERVICE_ACCOUNT_EMAIL)
 
-        Credential credential =null;
+        Credential credential = null;
         PrivateKey serviceAccountPrivateKey;
-        try{
+        try {
             //res/raw folder contains .p12 file
-            final Resources resources =  ctx.getResources();
+            final Resources resources = ctx.getResources();
             // InputStream inputStream = resources.openRawResource(R.raw.googlecloudapp281fc1542171);
 
             //assets folder contains .p12 file
-            AssetManager am=ctx.getAssets();
-            InputStream inputStream= am.open("Google cloud app-7e0287a68575.p12");
+            AssetManager am = ctx.getAssets();
+            InputStream inputStream = am.open("Google cloud app-7e0287a68575.p12");
             System.out.println("before ks in authorise");
             KeyStore keystore = KeyStore.getInstance("PKCS12");
             System.out.println("after PKCS12 in authorise");
@@ -162,19 +167,19 @@ public class ServiceUtility {
             return null;
         }
         // setServiceAccountId(IRingeeConstants.SERVICE_ACCOUNT_EMAIL)
-       try{
+        try {
 
-        credential = new GoogleCredential
-                .Builder()
+            credential = new GoogleCredential
+                    .Builder()
                     .setTransport(HTTP_TRANSPORT)
                     .setJsonFactory(JSON_FACTORY)
                     .setServiceAccountId("perfect-entry-134823@appspot.gserviceaccount.com")
                     .setServiceAccountScopes(Collections.singleton(DriveScopes.DRIVE))//DriveScopes.DRIVE_APPDATA
                     .setServiceAccountPrivateKey(serviceAccountPrivateKey)
-                  //  .setServiceAccountPrivateKeyFromP12File(file)
+                    //  .setServiceAccountPrivateKeyFromP12File(file)
                     .build();
-           //  } catch (GeneralSecurityException e) {
-             //  e.printStackTrace();
+            //  } catch (GeneralSecurityException e) {
+            //  e.printStackTrace();
 //        }
 
             //  System.out.println(                "Credentials saved to " + DATA_STORE_DIR.getAbsolutePath());
@@ -184,8 +189,10 @@ public class ServiceUtility {
         }
         return credential;
     }
+
     /**
      * Fetch a list of the next 10 events from the primary calendar.
+     *
      * @return List of Strings describing returned events.
      * @throws IOException
      */
@@ -226,13 +233,13 @@ public class ServiceUtility {
         return items;
     }
 
-//0B5nxCVMvw6oHZVlKV3VoTDRrU0E
-   protected List<File> printFile(Drive service,String driveFolderID){
+    //0B5nxCVMvw6oHZVlKV3VoTDRrU0E
+    protected List<File> printFile(Drive service, String driveFolderID) {
         // Print the names and IDs for up to 10 files.
-       String locdriveFolderID=driveFolderID;
+        String locdriveFolderID = driveFolderID;
         FileList result = null;
         try {//for school folder in googledrive https://drive.google.com/folderview?id=0B5nxCVMvw6oHZVlKV3VoTDRrU0E&usp=sharing
-            result = service.files().list().setQ("'"+locdriveFolderID+"' in parents")
+            result = service.files().list().setQ("'" + locdriveFolderID + "' in parents")
                     .setPageSize(10)
                     .setFields("nextPageToken, files(id, name,description,mimeType,modifiedTime)")
                     .setOrderBy("modifiedTime")
@@ -241,29 +248,29 @@ public class ServiceUtility {
             e.printStackTrace();
             System.out.println("exception in printfile to get result");
         }
-        String filenameid=null;
+        String filenameid = null;
         List<File> files = result.getFiles();
         if (files == null || files.size() == 0) {
             System.out.println("No files found.");
         } else {
             System.out.println("Files:");
-            StringBuilder sb=new StringBuilder();
+            StringBuilder sb = new StringBuilder();
             for (File file : files) {
-                sb.append("name " + file.getName() + " id " + file.getId()+" modifiedTime "+file.getModifiedTime());
+                sb.append("name " + file.getName() + " id " + file.getId() + " modifiedTime " + file.getModifiedTime());
                 System.out.printf("******Filename %s (%s) %s \n", file.getName(), file.getId(), file.getModifiedTime());
-                downloadPDF( service,file);
+                downloadPDF(service, file);
             }
-            filenameid=sb.toString();
-            System.out.println("filename  ****"+filenameid);
-           // File[] filearray = (File[]) files.toArray();
+            filenameid = sb.toString();
+            System.out.println("filename  ****" + filenameid);
+            // File[] filearray = (File[]) files.toArray();
             //System.out.println("filearray  ****"+filearray.length);
 
         }
-        return files ;
+        return files;
     }
 
-  private void downloadPDF(Drive service,File file) {
-      //System.out.println("in download pdf file.getViewersCanCopyContent()" + file.getViewersCanCopyContent());
+    private void downloadPDF(Drive service, File file) {
+        //System.out.println("in download pdf file.getViewersCanCopyContent()" + file.getViewersCanCopyContent());
      /* HttpResponse resp = service.getRequestFactory()
               .buildGetRequest(new GenericUrl(file.getViewersCanCopyContent())).execute();
       fileSize = resp.getHeaders().getContentLength();
@@ -271,71 +278,74 @@ public class ServiceUtility {
           fileSizeReadableString = DiskSpaceUtil.readableFileSize(fileSize);
       }
       InputStream is = resp.getContent();*/
-      // String fileId = "1ZdR3L3qP4Bkq8noWLJHSr_iBau0DNT4Kli4SxNc2YEo";
-      //  OutputStream outputStream = new ByteArrayOutputStream();
-   //   String filecontents = "";
-     // System.out.println("file size***" + file.getSize() + file.size());
-      //  ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      OutputStream outputStream = null;
-      java.io.File file1=null;
-    //  try {
-          //FileOutputStream outputStream1;
-          //outputStream1=  openFileOutput(file.getFullFileExtension(), Context.MODE_PRIVATE);
-          try {
-              //  File file1 = new File(Environment.getExternalStorageDirectory(), "MyCache");
-              System.out.println("**file.getName()()"+file.getName());
-              file1 = new java.io.File(Environment.getExternalStorageDirectory(),file.getName() );
-             // cachefile(getContext);
-              //     java.io.File  file1 = new java.io.File(getCacheDir(), "MyCache");
-              outputStream = new FileOutputStream(file1);
-          } catch (FileNotFoundException e) {
-              e.printStackTrace();
-          }
-          //byte[] b;
-          try {
+        // String fileId = "1ZdR3L3qP4Bkq8noWLJHSr_iBau0DNT4Kli4SxNc2YEo";
+        //  OutputStream outputStream = new ByteArrayOutputStream();
+        //   String filecontents = "";
+        // System.out.println("file size***" + file.getSize() + file.size());
+        //  ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        OutputStream outputStream = null;
+        java.io.File file1 = null;
+        //  try {
+        //FileOutputStream outputStream1;
+        //outputStream1=  openFileOutput(file.getFullFileExtension(), Context.MODE_PRIVATE);
+        try {
+            //  File file1 = new File(Environment.getExternalStorageDirectory(), "MyCache");
+            System.out.println("**file.getName()()" + file.getName());
+            file1 = new java.io.File(Environment.getExternalStorageDirectory(), file.getName());
+            // cachefile(getContext);
+            //     java.io.File  file1 = new java.io.File(getCacheDir(), "MyCache");
+            outputStream = new FileOutputStream(file1);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        //byte[] b;
+        try {
 //          List<Permission> permissions = file.getPermissions();
 //          for (Permission per:permissions ) {
 //              System.out.println("permis** "+per.toString());
 //          }
 //serv// ice.getRequestFactory().buildGetRequest(file.getD)
-              service.files().get(file.getId()).executeMediaAndDownloadTo(outputStream);
+            service.files().get(file.getId()).executeMediaAndDownloadTo(outputStream);
      /*    InputStream in = new ByteArrayInputStream(outputStream.toByteArray());
      // if (outputStream.size())
           System.out.println("os size"+outputStream.size()+" inps size "+in.read ());
              b= outputStream.toByteArray();
            System.out.println(b.toString());*/
 
-           //   System.out.println("***outputSt.tostring()" + outputStream.toString());
-             // filecontents = outputStream.toString();
+            //   System.out.println("***outputSt.tostring()" + outputStream.toString());
+            // filecontents = outputStream.toString();
 
-          } catch (Exception e) {
-              //} catch (IOException e) {
-              System.out.println("file is empty or not able to read");
-              e.printStackTrace();
-              //return null;
-          }
+        } catch (Exception e) {
+            //} catch (IOException e) {
+            System.out.println("file is empty or not able to read");
+            e.printStackTrace();
+            //return null;
+        }
 
-      //    return filecontents;
-      }
-   public void fileRead(java.io.File file) throws IOException {
-       FileInputStream fis = new FileInputStream(file);
-
-       System.out.println(" file name for reading ***"+file.getName()+"  in Bytes");
-       int oneByte;
-    while ((oneByte = fis.read()) != -1) {
-        System.out.write(oneByte);
-        // System.out.print((char)oneByte); // could also do this
+        //    return filecontents;
     }
 
-    System.out.flush();
-   }
-   private void cachefile(Context context) {
-       final java.io.File cacheDir = context.getDir("cache", 0);
-       if (!cacheDir.exists()) cacheDir.mkdirs();
-       final java.io.File fileContent;
-       fileContent = new java.io.File(cacheDir, "test1.pdf");
-   }
-    String pdfpath(String filename){
+    public void fileRead(java.io.File file) throws IOException {
+        FileInputStream fis = new FileInputStream(file);
+
+        System.out.println(" file name for reading ***" + file.getName() + "  in Bytes");
+        int oneByte;
+        while ((oneByte = fis.read()) != -1) {
+            System.out.write(oneByte);
+            // System.out.print((char)oneByte); // could also do this
+        }
+
+        System.out.flush();
+    }
+
+    private void cachefile(Context context) {
+        final java.io.File cacheDir = context.getDir("cache", 0);
+        if (!cacheDir.exists()) cacheDir.mkdirs();
+        final java.io.File fileContent;
+        fileContent = new java.io.File(cacheDir, "test1.pdf");
+    }
+
+    String pdfpath(String filename) {
         java.io.File f = new java.io.File(Environment.getExternalStorageDirectory()
                 + java.io.File.separator + filename);
         String path = f.getPath();

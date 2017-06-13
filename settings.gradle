@@ -1,1 +1,1 @@
-include ':app', ':myapplication', ':backend', ':backend'
+include ':app', ':myapplication',  ':servlet.backend', ':backendendpoint', ':backend.googleDrv'

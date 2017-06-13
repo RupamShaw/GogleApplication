@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 //apply plugin: 'android-apt'
+
 android {
     compileSdkVersion 24
     buildToolsVersion '25.0.0'
@@ -10,6 +11,7 @@ android {
         targetSdkVersion 24
         versionCode 1
         versionName "1.0"
+        testInstrumentationRunner 'android.support.test.runner.AndroidJUnitRunner'
     }
     //SHA1: CD:46:59:76:1D:57:1E:55:69:45:8E:E2:F6:D5:AC:5E:0D:8F:BB:38
     buildTypes {
@@ -26,16 +28,22 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     //  compile 'com.google.api-client:google-api-client-appengine:1.22.0'
-
-//google login starts
+    //google login starts
     //google login ends
     compile('com.google.apis:google-api-services-calendar:v3-rev191-1.22.0') {
         exclude group: 'org.apache.httpcomponents'
     }
+    // compile project(path: ':backend-mod1', configuration: 'android-endpoints')
+    compile project(path: ':backendendpoint', configuration: 'android-endpoints')
+    compile 'com.google.firebase:firebase-core:10.2.0'
+    androidTestCompile 'com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    }
+    compile 'com.google.firebase:firebase-core:10.2.0'
     compile 'com.android.support:appcompat-v7:24.0.0'
     compile 'com.android.support:design:24.0.0'
     compile 'com.google.api-client:google-api-client:1.22.0'
-    compile 'com.google.android.gms:play-services-auth:9.8.0'
+    compile 'com.google.android.gms:play-services-auth:10.2.0'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.google.apis:google-api-services-drive:v3-rev30-1.22.0'
     compile 'com.google.http-client:google-http-client-android:1.22.0'
@@ -43,8 +51,10 @@ dependencies {
     compile 'org.androidannotations:androidannotations-api:4.0.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.google.code.findbugs:jsr305:2.0.1'
+    compile 'com.google.firebase:firebase-messaging:10.2.0'
+    compile 'com.android.volley:volley:1.0.0'
+    compile 'com.google.firebase:firebase-database:10.2.0'
     testCompile 'junit:junit:4.12'
     provided 'org.androidannotations:androidannotations:4.0.0'
-    compile project(path: ':backend', configuration: 'android-endpoints')
 }
 apply plugin: 'com.google.gms.google-services'

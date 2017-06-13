@@ -24,15 +24,22 @@ targetCompatibility = JavaVersion.VERSION_1_7
 dependencies {
     appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.42'
     compile 'javax.servlet:servlet-api:2.5'
-
     compile 'com.google.oauth-client:google-oauth-client:1.20.0'
     compile 'com.google.oauth-client:google-oauth-client-servlet:1.20.0'
     compile 'com.google.oauth-client:google-oauth-client-appengine:1.22.0'
- //   compile 'com.google.oauth-client:google-oauth-client-appengine:1.20.0'
+    //   compile 'com.google.oauth-client:google-oauth-client-appengine:1.20.0'
     compile 'com.google.api-client:google-api-client:1.20.0'
-    compile 'com.google.apis:google-api-services-drive:v3-rev71-1.22.0'
+    compile 'org.json:org.json:chargebee-1.0'
+    compile 'com.google.apis:google-api-services-drive:v3-rev76-1.22.0'
     compile 'com.google.api-client:google-api-client-appengine:1.22.0'
     compile 'com.google.appengine:appengine-endpoints:1.9.42'
+    compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
+  //  compile 'com.google.firebase:firebase-server-sdk:3.0.3'
+// Firebase Java SDK
+
+    compile 'com.google.firebase:firebase-admin:4.1.1'
+
+
 }
 
 appengine {
