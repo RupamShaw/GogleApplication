@@ -29,9 +29,9 @@ public class FlowerShopdelivered {
         executor.execute(new FlowerShop().new Order("L09", 10));
         executor.execute(new FlowerShop().new Order("T58", 10));
 */
-        executor.submit(new FlowerShopdelivered().new Order("R12", 10));
-        executor.submit(new FlowerShopdelivered().new Order("L09", 15));
-        executor.submit(new FlowerShopdelivered().new Order("T58", 13));
+        //executor.submit(new FlowerShopdelivered().new Order("R12", 10));
+        executor.submit(new FlowerShopdelivered().new Order("T58", 15));
+//        executor.submit(new FlowerShopdelivered().new Order("T58", 13));
 
        /* executor.execute(new FlowerShop().new Order("R12", 13));
         executor.execute(new FlowerShop().new Order("L09", 13));
@@ -98,7 +98,7 @@ public class FlowerShopdelivered {
                     System.out.println(qty + " Qty " + "*****Code " + code + " listNumberBundle " + listNumberBundle + " no combination found");
                 }
             }
-        }
+                                       }
 
         @Override
         public void run() {
@@ -185,7 +185,7 @@ public class FlowerShopdelivered {
         }
 
         Map<Integer, Integer> selectionLogic(List<Integer> bundle, int qty) {
-            Map<Integer, Integer> mapNumber = new HashMap<Integer, Integer>();
+            Map<Integer, Integer> mapNumber = new HashMap<Integer, Integer>();//
 /*            System.out.println("Before Sorting:");
             for (int counter : bundle) {
                   System.out.println(counter);

@@ -4,8 +4,10 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/GogleApplication.iml" filepath="$PROJECT_DIR$/GogleApplication.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/audiovideocamera/audiovideocamera.iml" filepath="$PROJECT_DIR$/audiovideocamera/audiovideocamera.iml" />
       <module fileurl="file://$PROJECT_DIR$/backend.googleDrv/backend.googleDrv.iml" filepath="$PROJECT_DIR$/backend.googleDrv/backend.googleDrv.iml" />
       <module fileurl="file://$PROJECT_DIR$/backendendpoint/backendendpoint.iml" filepath="$PROJECT_DIR$/backendendpoint/backendendpoint.iml" />
+      <module fileurl="file://$PROJECT_DIR$/easyimage/easyimage.iml" filepath="$PROJECT_DIR$/easyimage/easyimage.iml" />
       <module fileurl="file://$PROJECT_DIR$/myapplication/myapplication.iml" filepath="$PROJECT_DIR$/myapplication/myapplication.iml" />
       <module fileurl="file://$PROJECT_DIR$/servlet.backend/servlet.backend.iml" filepath="$PROJECT_DIR$/servlet.backend/servlet.backend.iml" />
     </modules>

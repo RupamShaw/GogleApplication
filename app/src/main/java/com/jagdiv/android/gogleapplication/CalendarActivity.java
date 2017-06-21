@@ -88,12 +88,12 @@ public class CalendarActivity extends BaseActivity {
 
         // navigate(mSelectedId);
 
-
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //Notice how the Coordinator Layout object is used here
-                Snackbar.make(mCoordinator, "FAB Clicked", Snackbar.LENGTH_SHORT).setAction("DISMISS", null).show();
+               // Snackbar.make(mCoordinator, "FAB Clicked", Snackbar.LENGTH_SHORT).setAction("DISMISS", null).show();
+                Toast.makeText(CalendarActivity.this,"hello", Toast.LENGTH_LONG).show();
             }
         });
 

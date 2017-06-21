@@ -47,10 +47,10 @@ public class DriveSrvAccnt extends HttpServlet {
        // String name = req.getParameter("name");
 //        getHeadersInfo(req);
   //      getUserAgent(req);
-        watchResource("Forms");
-        watchResource("Links");
+       // watchResource("Forms");
+        //watchResource("Links");
 
-        //  watchAllResources();
+          watchAllResources();
       //watchResource("NewsLetters");
   //Drive drive=OAuthUtils.getDriveServiceP12();
      /*     Log.info("getDriveServiceP12");
@@ -145,7 +145,6 @@ public class DriveSrvAccnt extends HttpServlet {
         return header;
     }
 
-
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
@@ -174,6 +173,6 @@ public class DriveSrvAccnt extends HttpServlet {
       //  String driveFolder = "NewsLetters";
        // watchResource(driveFolder);
        // resp.getWriter().println("Hello from DrivesrvcAcnt.dopost()" + name);
-        resp.getWriter().println("Hello from DrivesrvcAcnt.dopost()" );
+        resp.getWriter().println("Hello from DrivesrvcAcnt.dopost() watching all drive resources" );
     }
 }

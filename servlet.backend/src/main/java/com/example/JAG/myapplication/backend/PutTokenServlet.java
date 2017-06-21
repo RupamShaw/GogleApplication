@@ -63,7 +63,7 @@ public class PutTokenServlet extends HttpServlet {
             ds.put(e);
         }
         resp.setContentType("text/plain");
-        resp.getWriter().println("hello from TestTokenservlet");
+        resp.getWriter().println("hello from putTokenservlet your device registered");
     }
 
     @Override

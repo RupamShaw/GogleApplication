@@ -1,10 +1,13 @@
 package com.jagdiv.android.gogleapplication;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -16,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.api.services.calendar.model.Event;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -28,7 +32,7 @@ import java.util.Locale;
  * @author Mukesh Y
  */
 public class CalendarView extends BaseActivity{
-
+    String TAG="CalendarView";
     public GregorianCalendar month, itemmonth;// calendar instances.
 
     public CalendarAdapter adapter;// adapter instance
@@ -42,6 +46,7 @@ public class CalendarView extends BaseActivity{
     ArrayList<String> desc;
     ArrayList<Event> eventsoutput;
     ArrayList<String> utilityevent;
+    private FloatingActionButton mFab;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -152,6 +157,21 @@ public class CalendarView extends BaseActivity{
         });
         String toolbarTitle =getResources().getString(R.string.title_activity_calendarview);
         toolBar(savedInstanceState,toolbarTitle);
+        mFab = (FloatingActionButton) findViewById(R.id.fab);
+
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String refreshedToken="";
+                //Notice how the Coordinator Layout object is used here
+                // Snackbar.make(mCoordinator, "FAB Clicked", Snackbar.LENGTH_SHORT).setAction("DISMISS", null).show();
+                Toast.makeText(CalendarView.this,"hello from calendarview", Toast.LENGTH_LONG).show();
+                refreshedToken = FirebaseInstanceId.getInstance().getToken();
+                Log.d(TAG, " onCreate: " + refreshedToken);
+                new ServletPostAsyncTask().execute(new Pair<Context, String>(CalendarView.this, refreshedToken));
+            }
+        });
+
     }
     protected void setNextMonth() {
         int i = month.get(GregorianCalendar.MONTH);

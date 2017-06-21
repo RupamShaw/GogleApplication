@@ -1,1 +1,1 @@
-include ':app', ':myapplication',  ':servlet.backend', ':backendendpoint', ':backend.googleDrv'
+include ':app', ':myapplication', ':servlet.backend', ':backendendpoint', ':backend.googleDrv', ':audiovideocamera', ':easyimage'

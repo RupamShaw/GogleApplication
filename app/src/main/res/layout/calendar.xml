@@ -5,7 +5,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.jagdiv.android.gogleapplication.navigationview.CalendarView">
+    tools:context="com.jagdiv.android.gogleapplication.CalendarView">
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/root_coordinator"
         xmlns:android="http://schemas.android.com/apk/res/android"
@@ -44,11 +44,20 @@
             </android.support.design.widget.CollapsingToolbarLayout>
 
         </android.support.design.widget.AppBarLayout>
-        <include layout="@layout/content_calendarview" />
+        <include layout="@layout/content_calendarview"
+            android:id="@+id/include2" />
         <android.support.design.widget.FloatingActionButton android:id="@+id/fab"
             android:layout_width="wrap_content" android:layout_height="wrap_content"
             android:layout_gravity="bottom|end" android:layout_margin="@dimen/fab_margin"
             android:src="@android:drawable/ic_dialog_email" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:text="Receive Notification by sending Email "
+            tools:text="Receive Notification by sending Email " />
 
     </android.support.design.widget.CoordinatorLayout>
 
