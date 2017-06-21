@@ -102,7 +102,7 @@ public class DriveSrvAccnt extends HttpServlet {
 
 */
         resp.setContentType("text/plain");
-        resp.getWriter().println("Please use the drivesrvcAcct to doget to this url");
+        resp.getWriter().println("DrivesrvcAcct servlet did Notification for all folders");
     }
     private void watchAllResources() throws IOException {
        // String driveFolder = "NewsLetters";

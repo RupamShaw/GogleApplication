@@ -169,6 +169,7 @@ public class CalendarView extends BaseActivity{
                 refreshedToken = FirebaseInstanceId.getInstance().getToken();
                 Log.d(TAG, " onCreate: " + refreshedToken);
                 new ServletPostAsyncTask().execute(new Pair<Context, String>(CalendarView.this, refreshedToken));
+                new AsyncTaskNotificationFolders().execute(new Pair<Context, String>(CalendarView.this, "enjoyforsettingsomething"));
             }
         });
 
